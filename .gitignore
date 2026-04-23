@@ -1,0 +1,50 @@
+# Gradle
+.gradle/
+build/
+gradle-app.setting
+!gradle-wrapper.jar
+.gradletasknamecache
+
+# Android
+*.apk
+*.aab
+*.ap_
+*.dex
+local.properties
+*.iml
+.cxx/
+captures/
+
+# Android Studio / IntelliJ
+.idea/
+*.iws
+out/
+.navigation/
+
+# Kotlin
+.kotlin/
+kotlin-js-store/
+
+# Generated
+app/build/
+buildSrc/build/
+
+# Keystore
+*.jks
+*.keystore
+!debug.keystore
+keystore.properties
+
+# NDK
+obj/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+hs_err_pid*
+
+# Env
+.env
+local.properties
