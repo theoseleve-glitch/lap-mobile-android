@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand name; kept identical across locales. -->
+    <string name="app_name">LAP</string>
+</resources>
