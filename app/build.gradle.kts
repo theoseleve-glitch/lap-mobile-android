@@ -22,7 +22,16 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
+            // Placeholder: sign release with the debug keystore so
+            // `assembleRelease` completes before T015 wires a real signing
+            // config from keystore.properties.
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 
