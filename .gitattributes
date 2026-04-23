@@ -1,0 +1,48 @@
+# Default: auto-detect text files, normalize to LF on commit
+* text=auto eol=lf
+
+# Kotlin / JVM sources
+*.kt         text eol=lf
+*.kts        text eol=lf
+*.java       text eol=lf
+*.groovy     text eol=lf
+
+# Android / resources
+*.xml        text eol=lf
+*.pro        text eol=lf
+
+# Build + config
+*.gradle     text eol=lf
+*.properties text eol=lf
+*.toml       text eol=lf
+*.yml        text eol=lf
+*.yaml       text eol=lf
+*.json       text eol=lf
+*.md         text eol=lf
+
+# Shell scripts need LF
+gradlew      text eol=lf
+*.sh         text eol=lf
+
+# Windows batch files need CRLF
+*.bat        text eol=crlf
+*.cmd        text eol=crlf
+gradlew.bat  text eol=crlf
+
+# Binary files
+*.jar        binary
+*.war        binary
+*.apk        binary
+*.aab        binary
+*.dex        binary
+*.so         binary
+*.png        binary
+*.jpg        binary
+*.jpeg       binary
+*.gif        binary
+*.webp       binary
+*.ico        binary
+*.ttf        binary
+*.otf        binary
+*.keystore   binary
+*.jks        binary
