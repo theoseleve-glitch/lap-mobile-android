@@ -13,6 +13,8 @@ max_line_length = 120
 ktlint_code_style = intellij_idea
 ij_kotlin_allow_trailing_comma = true
 ij_kotlin_allow_trailing_comma_on_call_site = true
+# Compose encourages PascalCase for @Composable / @Preview functions
+ktlint_standard_function-naming = disabled
 
 [*.{xml,yml,yaml,toml,json}]
 indent_size = 2

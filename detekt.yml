@@ -47,6 +47,14 @@ style:
     max: 4
   WildcardImport:
     active: true
+  UnusedPrivateMember:
+    active: true
+    ignoreAnnotated:
+      - 'Preview'
+      - 'PreviewLightDark'
+      - 'PreviewScreenSizes'
+      - 'PreviewDynamicColors'
+      - 'PreviewFontScale'
 
 naming:
   FunctionNaming:

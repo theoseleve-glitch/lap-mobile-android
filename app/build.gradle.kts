@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.ktlint)
 }
 
 android {
@@ -41,6 +43,15 @@ android {
         named("main") { java.srcDir("src/main/kotlin") }
         named("test") { java.srcDir("src/test/kotlin") }
     }
+}
+
+detekt {
+    config.setFrom("$rootDir/detekt.yml")
+    buildUponDefaultConfig = true
+}
+
+ktlint {
+    android.set(true)
 }
 
 dependencies {
