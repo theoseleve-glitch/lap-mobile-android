@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Temporary placeholder: stylized bold "L" in white on the brand-blue
+         background. Replace with the final logo in T233. -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M40,32 L52,32 L52,64 L68,64 L68,76 L40,76 Z" />
+</vector>
