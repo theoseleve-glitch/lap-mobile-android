@@ -54,6 +54,19 @@ ktlint {
     android.set(true)
 }
 
+val installGitHooks by tasks.registering(Exec::class) {
+    group = "git"
+    description = "Configure git to use .githooks/ as core.hooksPath (idempotent)"
+    workingDir = rootProject.rootDir
+    commandLine("git", "config", "--local", "core.hooksPath", ".githooks")
+    isIgnoreExitValue = true
+    onlyIf { rootProject.rootDir.resolve(".git").isDirectory }
+}
+
+tasks.named("preBuild") {
+    dependsOn(installGitHooks)
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

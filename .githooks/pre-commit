@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# Pre-commit hook for lap-mobile-android.
+# Blocks commits that fail ktlintFormat or app:assembleDebug.
+set -eu
+
+# Auto-detect JAVA_HOME if missing (git-bash on Windows often runs without it)
+if [ -z "${JAVA_HOME:-}" ]; then
+    for candidate in \
+        "/c/Program Files/Microsoft/jdk-"* \
+        "/c/Program Files/Eclipse Adoptium/jdk-"* \
+        "/c/Program Files/Java/jdk-"* \
+        "/c/Program Files/Android/Android Studio/jbr" \
+        "/usr/lib/jvm/"*; do
+        if [ -x "${candidate}/bin/java.exe" ] || [ -x "${candidate}/bin/java" ]; then
+            export JAVA_HOME="$candidate"
+            break
+        fi
+    done
+fi
+
+if [ -z "${JAVA_HOME:-}" ]; then
+    echo "[pre-commit] JAVA_HOME not set and no JDK auto-detected." >&2
+    echo "[pre-commit] Install JDK 17+ (e.g. \`winget install Microsoft.OpenJDK.21\`) and re-open the terminal." >&2
+    exit 1
+fi
+
+GRADLEW="./gradlew"
+if [ ! -x "$GRADLEW" ]; then
+    echo "[pre-commit] gradlew not executable at $GRADLEW" >&2
+    exit 1
+fi
+
+staged_kt=$(git diff --name-only --cached -- '*.kt' '*.kts' || true)
+
+if [ -n "$staged_kt" ]; then
+    echo "[pre-commit] ktlintFormat..."
+    "$GRADLEW" ktlintFormat --quiet
+
+    unstaged=$(git diff --name-only -- $staged_kt || true)
+    if [ -n "$unstaged" ]; then
+        echo "[pre-commit] ktlintFormat reformatted these files:" >&2
+        echo "$unstaged" | sed 's/^/  /' >&2
+        echo "[pre-commit] Review, \`git add\` them, and commit again." >&2
+        exit 1
+    fi
+fi
+
+echo "[pre-commit] app:assembleDebug..."
+"$GRADLEW" app:assembleDebug --quiet
+
+echo "[pre-commit] OK"
