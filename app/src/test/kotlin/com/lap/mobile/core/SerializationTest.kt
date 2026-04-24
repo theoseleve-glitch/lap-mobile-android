@@ -10,9 +10,10 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Test fixture sealed hierarchy — proves the polymorphic wiring works end
- * to end before Block B defines real polymorphic types (SourceTag,
- * EnvironmentTag, etc.).
+ * Test fixture sealed hierarchy — proves the polymorphic `@type`
+ * discriminator wiring works end-to-end for app-local sealed types.
+ * Schema types from `:schemas` (SourceTag, EnvironmentTag, …) round-trip
+ * through `LapSchemasJson` instead and don't need polymorphic setup.
  */
 @Serializable
 sealed interface SerializationFixture {
