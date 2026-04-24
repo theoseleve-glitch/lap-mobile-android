@@ -10,4 +10,9 @@
     <string name="recovery_action_later">Later</string>
     <string name="recovery_row_sample_count">%1$d samples</string>
     <string name="recovery_row_started_at">Started %1$s</string>
+
+    <!-- Capture foreground service (T063) — persistent notification while recording. -->
+    <string name="capture_notification_channel_name">Recording</string>
+    <string name="capture_notification_title">Recording session</string>
+    <string name="capture_notification_text">Capturing telemetry</string>
 </resources>
