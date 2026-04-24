@@ -32,6 +32,8 @@ abstract class LapDatabase : RoomDatabase() {
 
     abstract fun journalDao(): JournalDao
 
+    abstract fun uploadQueueDao(): UploadQueueDao
+
     companion object {
         const val DATABASE_NAME: String = "lap.db"
         const val SCHEMA_VERSION: Int = 7
