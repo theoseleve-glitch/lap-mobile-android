@@ -34,6 +34,26 @@ android {
         versionName = "0.1.0"
     }
 
+    flavorDimensions += "env"
+    productFlavors {
+        create("dev") {
+            dimension = "env"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            resValue("string", "api_base_url", "https://dev.api.lap.com")
+        }
+        create("staging") {
+            dimension = "env"
+            applicationIdSuffix = ".staging"
+            versionNameSuffix = "-staging"
+            resValue("string", "api_base_url", "https://staging.api.lap.com")
+        }
+        create("prod") {
+            dimension = "env"
+            resValue("string", "api_base_url", "https://api.lap.com")
+        }
+    }
+
     signingConfigs {
         if (keystorePropsFile.exists()) {
             create("release") {
@@ -100,6 +120,16 @@ val installGitHooks by tasks.registering(Exec::class) {
 
 tasks.named("preBuild") {
     dependsOn(installGitHooks)
+}
+
+// Aggregate task so the /loop + pre-commit hook contract
+// (`./gradlew app:testDebugUnitTest`) keeps working now that flavors split
+// the real task into testDevDebugUnitTest / testStagingDebugUnitTest /
+// testProdDebugUnitTest.
+tasks.register("testDebugUnitTest") {
+    group = "verification"
+    description = "Runs unit tests for every flavor's debug variant."
+    dependsOn("testDevDebugUnitTest", "testStagingDebugUnitTest", "testProdDebugUnitTest")
 }
 
 dependencies {
