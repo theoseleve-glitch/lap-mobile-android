@@ -142,23 +142,6 @@ class JournalWriterTest {
     }
 }
 
-/** Test double for [JournalDao] — in-memory, records call count. */
-private class FakeJournalDao : JournalDao {
-    val rows: MutableMap<UUID7, SessionJournalEntity> = linkedMapOf()
-    var upsertCalls: Int = 0
-        private set
-
-    override suspend fun upsertHeartbeat(entry: SessionJournalEntity) {
-        rows[entry.sessionId] = entry
-        upsertCalls++
-    }
-
-    override suspend fun listStale(before: Instant): List<SessionJournalEntity> =
-        rows.values.filter { it.lastHeartbeatAt.isBefore(before) }
-
-    override suspend fun findBySessionId(sessionId: UUID7): SessionJournalEntity? = rows[sessionId]
-}
-
 /** Hand-advanced Clock so test virtual time and wall-clock reads stay aligned. */
 private class ScheduledClock(startAt: Instant) : Clock() {
     private var now: Instant = startAt
