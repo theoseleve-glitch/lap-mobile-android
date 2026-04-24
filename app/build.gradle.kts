@@ -173,6 +173,7 @@ dependencies {
     implementation(project(":schemas"))
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlin.reflect)
 
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.runner)
