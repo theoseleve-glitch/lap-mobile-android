@@ -40,17 +40,26 @@ android {
             dimension = "env"
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
-            resValue("string", "api_base_url", "https://dev.api.lap.com")
+            buildConfigField("String", "API_BASE_URL", "\"https://dev.api.lap.com\"")
+            buildConfigField("String", "CLERK_PUBLISHABLE_KEY", "\"pk_test_dev_PLACEHOLDER\"")
+            buildConfigField("String", "SENTRY_DSN", "\"https://placeholder@o0.ingest.sentry.io/dev\"")
+            buildConfigField("String", "POSTHOG_KEY", "\"phc_placeholder_dev\"")
         }
         create("staging") {
             dimension = "env"
             applicationIdSuffix = ".staging"
             versionNameSuffix = "-staging"
-            resValue("string", "api_base_url", "https://staging.api.lap.com")
+            buildConfigField("String", "API_BASE_URL", "\"https://staging.api.lap.com\"")
+            buildConfigField("String", "CLERK_PUBLISHABLE_KEY", "\"pk_test_staging_PLACEHOLDER\"")
+            buildConfigField("String", "SENTRY_DSN", "\"https://placeholder@o0.ingest.sentry.io/staging\"")
+            buildConfigField("String", "POSTHOG_KEY", "\"phc_placeholder_staging\"")
         }
         create("prod") {
             dimension = "env"
-            resValue("string", "api_base_url", "https://api.lap.com")
+            buildConfigField("String", "API_BASE_URL", "\"https://api.lap.com\"")
+            buildConfigField("String", "CLERK_PUBLISHABLE_KEY", "\"pk_live_PROD_PLACEHOLDER\"")
+            buildConfigField("String", "SENTRY_DSN", "\"https://placeholder@o0.ingest.sentry.io/prod\"")
+            buildConfigField("String", "POSTHOG_KEY", "\"phc_placeholder_prod\"")
         }
     }
 
@@ -92,6 +101,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     sourceSets {
