@@ -57,7 +57,9 @@ class CaptureForegroundService : Service() {
             CaptureNotification.CHANNEL_ID,
             getString(R.string.capture_notification_channel_name),
             CaptureNotification.IMPORTANCE,
-        )
+        ).apply {
+            lockscreenVisibility = CaptureNotification.LOCK_SCREEN_VISIBILITY
+        }
         getSystemService(NotificationManager::class.java)
             ?.createNotificationChannel(channel)
     }
@@ -68,6 +70,8 @@ class CaptureForegroundService : Service() {
         .setSmallIcon(R.mipmap.ic_launcher)
         .setOngoing(true)
         .setPriority(NotificationCompat.PRIORITY_LOW)
+        .setVisibility(CaptureNotification.LOCK_SCREEN_VISIBILITY)
+        .setCategory(CaptureNotification.CATEGORY)
         .build()
 
     companion object {

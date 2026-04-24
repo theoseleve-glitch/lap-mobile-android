@@ -12,6 +12,8 @@ import org.junit.Test
  * without an Android runtime.
  */
 private const val IMPORTANCE_LOW: Int = 2
+private const val VISIBILITY_PUBLIC: Int = 1
+private const val CATEGORY_SERVICE_VALUE: String = "service"
 
 /**
  * Constants lock for the persistent-notification config T063 wires
@@ -40,5 +42,20 @@ class CaptureNotificationTest {
     @Test
     fun importance_is_low_so_recording_does_not_beep() {
         assertEquals(IMPORTANCE_LOW, CaptureNotification.IMPORTANCE)
+    }
+
+    @Test
+    fun lock_screen_visibility_is_public() {
+        // Recording is not sensitive PII — user must see it on the lock screen
+        // so they don't accidentally kill the app and lose the session.
+        assertEquals(VISIBILITY_PUBLIC, CaptureNotification.LOCK_SCREEN_VISIBILITY)
+    }
+
+    @Test
+    fun category_is_service() {
+        // Drives OS classification: ranking, DnD bypass, "Manage notifications"
+        // grouping. Required for foreground-service notifications to behave
+        // correctly under Android 14+ tightening.
+        assertEquals(CATEGORY_SERVICE_VALUE, CaptureNotification.CATEGORY)
     }
 }
