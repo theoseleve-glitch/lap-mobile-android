@@ -7,11 +7,10 @@ import java.time.Instant
 
 /**
  * Room stores primitives; these converters let DAOs accept domain types
- * directly. UUID7 is already a [String] typealias so the converter is
- * identity — it exists so future promotion of UUID7 to a value class
- * wouldn't cascade across every DAO. Instant stores as RFC3339 to stay
- * human-readable in the SQLite browser and interoperable with the
- * RFC3339 strings the schemas module serializes.
+ * directly. Instant stores as RFC3339 to stay interoperable with the
+ * strings [com.lap.schemas.v1.LapSchemasJson] produces (ADR-012) and
+ * human-readable in SQLite browsers. UUID7 has no converter — it's a
+ * String typealias, so Room persists it natively.
  */
 class LapTypeConvertersTest {
     private val converters = LapTypeConverters()
@@ -28,18 +27,5 @@ class LapTypeConvertersTest {
     fun instant_null_is_preserved_both_directions() {
         assertNull(converters.fromInstant(null))
         assertNull(converters.toInstant(null))
-    }
-
-    @Test
-    fun uuid7_passes_through_untouched() {
-        val id = "0194aaaa-aaaa-7aaa-aaaa-aaaaaaaaaaaa"
-        assertEquals(id, converters.fromUuid7(id))
-        assertEquals(id, converters.toUuid7(id))
-    }
-
-    @Test
-    fun uuid7_null_passes_through() {
-        assertNull(converters.fromUuid7(null))
-        assertNull(converters.toUuid7(null))
     }
 }

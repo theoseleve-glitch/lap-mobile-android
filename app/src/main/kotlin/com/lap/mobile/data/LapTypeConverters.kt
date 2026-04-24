@@ -1,7 +1,7 @@
 package com.lap.mobile.data
 
 import androidx.room.TypeConverter
-import com.lap.schemas.v1.UUID7
+import com.lap.schemas.v1.SourceTag
 import java.time.Instant
 
 /**
@@ -14,8 +14,12 @@ import java.time.Instant
  *   wire format [com.lap.schemas.v1.LapSchemasJson] uses for timestamps;
  *   this keeps the journal DB copy byte-identical to what the backend
  *   eventually ingests (ADR-012) and human-readable in SQLite browsers.
- * - [UUID7] is a String typealias today; the converter is identity so
- *   a future promotion to a value class doesn't ripple across every DAO.
+ * - [SourceTag] stores as its wireValue string, so ingest-rejected
+ *   values can't even be written to the local DB in the first place.
+ *
+ * UUID7 has no converter: it's a String typealias, so Room persists it
+ * natively — adding an identity converter trips KSP with "multiple
+ * methods define the same conversion".
  */
 class LapTypeConverters {
     @TypeConverter
@@ -25,8 +29,8 @@ class LapTypeConverters {
     fun toInstant(value: String?): Instant? = value?.let(Instant::parse)
 
     @TypeConverter
-    fun fromUuid7(value: UUID7?): String? = value
+    fun fromSourceTag(value: SourceTag?): String? = value?.wireValue
 
     @TypeConverter
-    fun toUuid7(value: String?): UUID7? = value
+    fun toSourceTag(value: String?): SourceTag? = value?.let(SourceTag::fromWire)
 }

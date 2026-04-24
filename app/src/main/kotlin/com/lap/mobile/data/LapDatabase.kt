@@ -1,18 +1,23 @@
 package com.lap.mobile.data
 
+import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 /**
- * Root Room database. T041 lands the skeleton + converter registration;
- * the `@Database(entities = [...], version = ...)` annotation arrives in
- * T042 when the first real entity ([SessionEntity]) is defined — Room
- * refuses to process an empty entities array.
+ * Root Room database. Schema version 1 ships with [SessionEntity]
+ * (T042); subsequent entities (journal, upload queue, caches) land in
+ * T043–T048 and bump the version via proper Migrations per T053 policy.
  *
  * [LapTypeConverters] is registered at the class level so every DAO
- * defined in subsequent tasks inherits Instant / UUID7 converters
- * without per-DAO `@TypeConverters` noise.
+ * defined in subsequent tasks inherits Instant / UUID7 / SourceTag
+ * converters without per-DAO `@TypeConverters` noise.
  */
+@Database(
+    entities = [SessionEntity::class],
+    version = 1,
+    exportSchema = false,
+)
 @TypeConverters(LapTypeConverters::class)
 abstract class LapDatabase : RoomDatabase() {
     companion object {
