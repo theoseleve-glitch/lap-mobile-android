@@ -11,9 +11,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.lap.mobile.ui.navigation.Routes
 import com.lap.mobile.ui.theme.LapTheme
-
-private const val ROUTE_HOME = "home"
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,8 +26,8 @@ private fun AppRoot() {
     val navController = rememberNavController()
     LapTheme {
         Surface {
-            NavHost(navController = navController, startDestination = ROUTE_HOME) {
-                composable(ROUTE_HOME) {
+            NavHost(navController = navController, startDestination = Routes.Home.route) {
+                composable(Routes.Home.route) {
                     Text(text = stringResource(R.string.app_name))
                 }
             }
