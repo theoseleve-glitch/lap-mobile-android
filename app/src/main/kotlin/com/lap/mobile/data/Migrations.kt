@@ -126,3 +126,25 @@ val MIGRATION_5_6: Migration = object : Migration(5, 6) {
         )
     }
 }
+
+/**
+ * v6 → v7: add `rule_bundle` (T048). Single bundle per id (typically
+ * the calver version); duplicate fetches overwrite. TTL + signature
+ * check happen at read time in the coaching layer, not at the SQL
+ * level.
+ */
+val MIGRATION_6_7: Migration = object : Migration(6, 7) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS rule_bundle (
+                id TEXT NOT NULL PRIMARY KEY,
+                version TEXT NOT NULL,
+                bundle_json TEXT NOT NULL,
+                signature TEXT NOT NULL,
+                fetched_at TEXT NOT NULL
+            )
+            """.trimIndent(),
+        )
+    }
+}
