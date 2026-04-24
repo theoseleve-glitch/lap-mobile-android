@@ -84,3 +84,25 @@ val MIGRATION_3_4: Migration = object : Migration(3, 4) {
         db.execSQL("CREATE INDEX IF NOT EXISTS index_insight_cache_session_id ON insight_cache(session_id)")
     }
 }
+
+/**
+ * v4 → v5: add `prescription_cache` (T046). No FK to sessions —
+ * prescriptions are longitudinal and may outlive individual sessions
+ * (ADR-012, backend-authored per driver). Indexed on driver_id for
+ * the list-by-driver dashboard query.
+ */
+val MIGRATION_4_5: Migration = object : Migration(4, 5) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS prescription_cache (
+                id TEXT NOT NULL PRIMARY KEY,
+                driver_id TEXT NOT NULL,
+                payload TEXT NOT NULL,
+                cached_at TEXT NOT NULL
+            )
+            """.trimIndent(),
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_prescription_cache_driver_id ON prescription_cache(driver_id)")
+    }
+}

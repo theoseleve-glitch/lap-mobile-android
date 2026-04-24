@@ -19,14 +19,15 @@ import androidx.room.TypeConverters
         SessionJournalEntity::class,
         UploadQueueEntity::class,
         InsightCacheEntity::class,
+        PrescriptionCacheEntity::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = false,
 )
 @TypeConverters(LapTypeConverters::class)
 abstract class LapDatabase : RoomDatabase() {
     companion object {
         const val DATABASE_NAME: String = "lap.db"
-        const val SCHEMA_VERSION: Int = 4
+        const val SCHEMA_VERSION: Int = 5
     }
 }
