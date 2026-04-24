@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">LAP</string>
+
+    <!-- Recovery modal (T058) — surfaces sessions the app died mid-way through. -->
+    <string name="recovery_title">Recover unfinished sessions?</string>
+    <string name="recovery_body">These sessions ended unexpectedly. You can finalize each one from the local journal, or discard it.</string>
+    <string name="recovery_action_finalize">Finalize</string>
+    <string name="recovery_action_discard">Discard</string>
+    <string name="recovery_action_later">Later</string>
+    <string name="recovery_row_sample_count">%1$d samples</string>
+    <string name="recovery_row_started_at">Started %1$s</string>
 </resources>
