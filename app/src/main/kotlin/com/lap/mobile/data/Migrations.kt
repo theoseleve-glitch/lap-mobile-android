@@ -60,3 +60,27 @@ val MIGRATION_2_3: Migration = object : Migration(2, 3) {
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_upload_queue_state ON upload_queue(state)")
     }
 }
+
+/**
+ * v3 → v4: add `insight_cache` (T045). Payload is kotlinx-serialized
+ * JSON of a [com.lap.schemas.v1.CoachingInsight], keyed by insight id
+ * with a session_id FK for cascade cleanup and an index for the
+ * list-by-session dashboard query.
+ */
+val MIGRATION_3_4: Migration = object : Migration(3, 4) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS insight_cache (
+                id TEXT NOT NULL PRIMARY KEY,
+                session_id TEXT NOT NULL,
+                driver_id TEXT NOT NULL,
+                payload TEXT NOT NULL,
+                cached_at TEXT NOT NULL,
+                FOREIGN KEY(session_id) REFERENCES sessions(id) ON DELETE CASCADE
+            )
+            """.trimIndent(),
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_insight_cache_session_id ON insight_cache(session_id)")
+    }
+}
