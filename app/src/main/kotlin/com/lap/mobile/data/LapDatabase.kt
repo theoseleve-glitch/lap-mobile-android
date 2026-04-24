@@ -14,14 +14,17 @@ import androidx.room.TypeConverters
  * converters without per-DAO `@TypeConverters` noise.
  */
 @Database(
-    entities = [SessionEntity::class],
-    version = 1,
+    entities = [
+        SessionEntity::class,
+        SessionJournalEntity::class,
+    ],
+    version = 2,
     exportSchema = false,
 )
 @TypeConverters(LapTypeConverters::class)
 abstract class LapDatabase : RoomDatabase() {
     companion object {
         const val DATABASE_NAME: String = "lap.db"
-        const val SCHEMA_VERSION: Int = 1
+        const val SCHEMA_VERSION: Int = 2
     }
 }
