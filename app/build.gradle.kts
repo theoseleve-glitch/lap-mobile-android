@@ -170,6 +170,7 @@ dependencies {
     implementation(libs.timber)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
+    implementation(project(":schemas"))
 
     testImplementation(libs.junit)
 
