@@ -106,3 +106,23 @@ val MIGRATION_4_5: Migration = object : Migration(4, 5) {
         db.execSQL("CREATE INDEX IF NOT EXISTS index_prescription_cache_driver_id ON prescription_cache(driver_id)")
     }
 }
+
+/**
+ * v5 → v6: add `track_cache` (T047). Global catalog — no FK, no index
+ * beyond the implicit PK index (track lookups are by id).
+ */
+val MIGRATION_5_6: Migration = object : Migration(5, 6) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS track_cache (
+                id TEXT NOT NULL PRIMARY KEY,
+                name TEXT NOT NULL,
+                layout TEXT NOT NULL,
+                sectors_json TEXT NOT NULL,
+                cached_at TEXT NOT NULL
+            )
+            """.trimIndent(),
+        )
+    }
+}
