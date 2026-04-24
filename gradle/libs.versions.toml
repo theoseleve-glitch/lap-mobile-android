@@ -12,6 +12,7 @@ androidx-lifecycle = "2.8.7"
 androidx-activity = "1.9.3"
 androidx-navigation = "2.8.5"
 timber = "5.0.1"
+kotlinx-coroutines = "1.9.0"
 junit = "4.13.2"
 
 [libraries]
@@ -31,6 +32,7 @@ room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
 junit = { module = "junit:junit", version.ref = "junit" }
 
 [plugins]

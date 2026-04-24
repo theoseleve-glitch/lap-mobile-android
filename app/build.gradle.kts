@@ -165,6 +165,7 @@ dependencies {
     ksp(libs.room.compiler)
 
     implementation(libs.timber)
+    implementation(libs.kotlinx.coroutines.android)
 
     testImplementation(libs.junit)
 }
