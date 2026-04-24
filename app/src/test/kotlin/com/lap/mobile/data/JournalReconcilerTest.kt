@@ -8,7 +8,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.Clock
 import java.time.Instant
-import java.time.ZoneOffset
 
 private const val STALE_THRESHOLD_SECONDS: Long = 60L
 private const val JUST_BEFORE_BOUNDARY_SECONDS: Long = 59L
@@ -100,10 +99,4 @@ class JournalReconcilerTest {
         lastHeartbeatAt = lastHeartbeatAt,
         status = "recording",
     )
-}
-
-private class FixedClock(private val now: Instant) : Clock() {
-    override fun instant(): Instant = now
-    override fun getZone(): java.time.ZoneId = ZoneOffset.UTC
-    override fun withZone(zone: java.time.ZoneId?): Clock = this
 }

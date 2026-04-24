@@ -28,4 +28,10 @@ internal class FakeJournalDao : JournalDao {
         rows.values.filter { it.lastHeartbeatAt.isBefore(before) }
 
     override suspend fun findBySessionId(sessionId: UUID7): SessionJournalEntity? = rows[sessionId]
+
+    override suspend fun deleteOlderThan(before: Instant): Int {
+        val doomed = rows.values.filter { it.lastHeartbeatAt.isBefore(before) }
+        doomed.forEach { rows.remove(it.sessionId) }
+        return doomed.size
+    }
 }

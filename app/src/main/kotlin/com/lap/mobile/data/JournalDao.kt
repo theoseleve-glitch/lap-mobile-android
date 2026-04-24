@@ -29,4 +29,7 @@ interface JournalDao {
 
     @Query("SELECT * FROM session_journal WHERE session_id = :sessionId")
     suspend fun findBySessionId(sessionId: UUID7): SessionJournalEntity?
+
+    @Query("DELETE FROM session_journal WHERE last_heartbeat_at < :before")
+    suspend fun deleteOlderThan(before: Instant): Int
 }
