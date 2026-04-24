@@ -33,3 +33,30 @@ val MIGRATION_1_2: Migration = object : Migration(1, 2) {
         )
     }
 }
+
+/**
+ * v2 → v3: add `upload_queue` (T044). Cascading FK on session_id so
+ * abandoning a local session (T162) sweeps its queue row too. Indexed
+ * on state so T160 FIFO dequeue stays cheap as the queue grows.
+ */
+val MIGRATION_2_3: Migration = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS upload_queue (
+                session_id TEXT NOT NULL PRIMARY KEY,
+                state TEXT NOT NULL,
+                chunks_total INTEGER NOT NULL,
+                idempotency_key TEXT NOT NULL,
+                attempt_count INTEGER NOT NULL DEFAULT 0,
+                next_retry_at TEXT,
+                last_http_code INTEGER,
+                last_error TEXT,
+                chunks_sent INTEGER NOT NULL DEFAULT 0,
+                FOREIGN KEY(session_id) REFERENCES sessions(id) ON DELETE CASCADE
+            )
+            """.trimIndent(),
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_upload_queue_state ON upload_queue(state)")
+    }
+}
