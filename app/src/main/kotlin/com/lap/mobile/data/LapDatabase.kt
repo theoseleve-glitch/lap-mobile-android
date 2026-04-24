@@ -30,6 +30,8 @@ import androidx.room.TypeConverters
 abstract class LapDatabase : RoomDatabase() {
     abstract fun sessionDao(): SessionDao
 
+    abstract fun journalDao(): JournalDao
+
     companion object {
         const val DATABASE_NAME: String = "lap.db"
         const val SCHEMA_VERSION: Int = 7
