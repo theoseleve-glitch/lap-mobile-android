@@ -19,6 +19,7 @@ androidx-test-ext-junit = "1.2.1"
 androidx-test-runner = "1.6.2"
 androidx-test-rules = "1.6.1"
 espresso-core = "3.6.1"
+play-services-location = "21.3.0"
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core-ktx" }
@@ -48,6 +49,7 @@ androidx-test-rules = { module = "androidx.test:rules", version.ref = "androidx-
 espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso-core" }
 androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "play-services-location" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
