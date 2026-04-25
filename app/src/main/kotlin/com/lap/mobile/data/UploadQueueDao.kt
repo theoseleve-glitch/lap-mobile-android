@@ -15,9 +15,13 @@ import java.time.Instant
  * idempotency key + any in-flight chunks_sent/attempt_count from
  * being overwritten on a re-enqueue).
  *
- * FIFO ordering (T160): session_id is a UUIDv7, which is time-ordered
+ * Queue ordering (T160): session_id is a UUIDv7, which is time-ordered
  * by construction, so `ORDER BY session_id ASC` is natural FIFO without
- * a separate `enqueued_at` column.
+ * a separate `enqueued_at` column. The `WHERE state = "queued"` filter
+ * skips terminal states (`completed`, `failed_permanent`) so a dead or
+ * finished row never blocks a younger queued one. The same policy is
+ * mirrored in pure Kotlin by [UploadQueueOrdering.selectNextDequeueable]
+ * — it's JVM-locked there because `@Query` has CLASS retention.
  */
 @Dao
 interface UploadQueueDao {
