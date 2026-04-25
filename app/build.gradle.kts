@@ -171,6 +171,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.play.services.location)
+    implementation(libs.nordic.ble)
+    implementation(libs.nordic.ble.ktx)
     implementation(project(":schemas"))
 
     testImplementation(libs.junit)
