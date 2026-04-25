@@ -20,6 +20,9 @@ private const val CHECKSUMS_TXT: String = "deadbeef  manifest.json\n"
 private const val FORM_FIELD_NAME_REGEX_PART: String = """name="(?<name>[^"]+)""""
 private const val FILENAME_REGEX_PART: String = """filename="(?<filename>[^"]+)""""
 
+// Fixture bundle has 4 non-manifest artifacts: checksums.txt, events.json, laps.json, telemetry.csv.
+private const val EXPECTED_CHUNK_COUNT: Int = 4
+
 class BundleMultipartBuilderTest {
     @get:Rule
     val tempFolder: TemporaryFolder = TemporaryFolder()
@@ -136,6 +139,62 @@ class BundleMultipartBuilderTest {
 
         assertThrows(IllegalStateException::class.java) {
             BundleMultipartBuilder().build(ghostDir)
+        }
+    }
+
+    @Test
+    fun build_with_default_cursor_returns_every_chunk_so_the_unresumed_path_is_unchanged() {
+        // Regression lock for T151 — the new fromChunkIndex parameter must
+        // default to 0, so callers that don't pass a cursor still send the
+        // whole bundle.
+        val bundleDir = writeFixtureBundle()
+
+        val payload = BundleMultipartBuilder().build(bundleDir)
+
+        assertEquals(EXPECTED_CHUNK_COUNT, payload.chunks.size)
+    }
+
+    @Test
+    fun build_with_cursor_one_skips_the_first_chunk_so_a_resumed_upload_does_not_replay_acked_chunks() {
+        val bundleDir = writeFixtureBundle()
+        val withoutCursor = BundleMultipartBuilder().build(bundleDir).chunks
+            .map { formFieldFilename(it) }
+
+        val withCursor = BundleMultipartBuilder().build(bundleDir, fromChunkIndex = 1).chunks
+            .map { formFieldFilename(it) }
+
+        assertEquals(withoutCursor.drop(1), withCursor)
+    }
+
+    @Test
+    fun build_with_cursor_equal_to_chunk_count_returns_no_chunks_so_a_finished_resume_replays_only_the_manifest() {
+        // After the server has ACK'd every chunk but the connection died
+        // before the final 2xx made it back, the next attempt re-sends the
+        // manifest so the server can replay the original response under
+        // the same Idempotency-Key (T150) — but it must NOT re-upload the
+        // chunks the server already has.
+        val bundleDir = writeFixtureBundle()
+
+        val payload = BundleMultipartBuilder().build(bundleDir, fromChunkIndex = EXPECTED_CHUNK_COUNT)
+
+        assertEquals(emptyList<okhttp3.MultipartBody.Part>(), payload.chunks)
+    }
+
+    @Test
+    fun build_with_negative_cursor_throws_so_a_corrupted_persisted_value_surfaces_loudly() {
+        val bundleDir = writeFixtureBundle()
+
+        assertThrows(IllegalArgumentException::class.java) {
+            BundleMultipartBuilder().build(bundleDir, fromChunkIndex = -1)
+        }
+    }
+
+    @Test
+    fun build_with_cursor_beyond_chunk_count_throws_so_an_off_by_one_does_not_silently_succeed() {
+        val bundleDir = writeFixtureBundle()
+
+        assertThrows(IllegalArgumentException::class.java) {
+            BundleMultipartBuilder().build(bundleDir, fromChunkIndex = EXPECTED_CHUNK_COUNT + 1)
         }
     }
 

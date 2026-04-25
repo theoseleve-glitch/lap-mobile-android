@@ -43,18 +43,29 @@ data class BundleMultipartPayload(
  * corrupted or never finalised) — surfacing it as
  * [IllegalStateException] keeps the upload worker from sending a
  * truncated request the server would reject with a 422.
+ *
+ * Resume cursor (T152): callers may pass [fromChunkIndex] to skip the
+ * first N chunks the server has already acknowledged. The cursor is
+ * sourced from `upload_queue.chunks_sent` (T146) and is incremented by
+ * the worker as each chunk lands. The manifest part is always included
+ * so that — even on a resume that skips every chunk — the server can
+ * replay the original 2xx response under the same Idempotency-Key
+ * (ADR-012 / T150) when the prior attempt's ACK never made it back.
  */
 class BundleMultipartBuilder @Inject constructor() {
-    fun build(bundleDir: File): BundleMultipartPayload {
+    fun build(bundleDir: File, fromChunkIndex: Int = 0): BundleMultipartPayload {
         check(bundleDir.isDirectory) { "bundle dir does not exist: $bundleDir" }
         val manifestFile = File(bundleDir, MANIFEST_FILENAME)
         check(manifestFile.isFile) { "bundle is missing $MANIFEST_FILENAME: $bundleDir" }
         val chunkFiles = bundleDir.listFiles { f -> f.isFile && f.name != MANIFEST_FILENAME }
             ?.sortedBy { it.name }
             .orEmpty()
+        require(fromChunkIndex in 0..chunkFiles.size) {
+            "fromChunkIndex=$fromChunkIndex out of range [0, ${chunkFiles.size}] for bundle $bundleDir"
+        }
         return BundleMultipartPayload(
             manifest = filePart(MANIFEST_FIELD, manifestFile),
-            chunks = chunkFiles.map { filePart(CHUNKS_FIELD, it) },
+            chunks = chunkFiles.drop(fromChunkIndex).map { filePart(CHUNKS_FIELD, it) },
         )
     }
 
