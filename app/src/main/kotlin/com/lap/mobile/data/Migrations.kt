@@ -192,3 +192,19 @@ val MIGRATION_8_9: Migration = object : Migration(8, 9) {
         )
     }
 }
+
+/**
+ * v9 → v10: add `force_when_battery_low` to `upload_preferences`
+ * (T158). DEFAULT 0 (false) so any row written by a v9 install
+ * keeps the safe behaviour — defer uploads while the battery is
+ * low. ALTER TABLE ADD COLUMN with NOT NULL + DEFAULT is the
+ * SQLite-compatible way to extend an existing table without a
+ * full rewrite.
+ */
+val MIGRATION_9_10: Migration = object : Migration(9, 10) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "ALTER TABLE upload_preferences ADD COLUMN force_when_battery_low INTEGER NOT NULL DEFAULT 0",
+        )
+    }
+}
