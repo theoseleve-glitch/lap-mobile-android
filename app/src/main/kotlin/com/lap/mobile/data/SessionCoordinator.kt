@@ -1,6 +1,8 @@
 package com.lap.mobile.data
 
 import com.lap.mobile.capture.CaptureOrchestrator
+import com.lap.mobile.capture.PreflightGate
+import com.lap.mobile.capture.PreflightStatus
 import com.lap.mobile.core.DomainError
 import com.lap.mobile.core.Result
 import com.lap.schemas.v1.SourceTag
@@ -44,6 +46,7 @@ class SessionCoordinator(
     private val orchestrator: CaptureOrchestrator,
     private val journalWriter: JournalWriter,
     private val clock: Clock,
+    private val preflight: PreflightGate,
 ) {
     private val _state: MutableStateFlow<RecordingState> = MutableStateFlow(RecordingState.IDLE)
     val state: StateFlow<RecordingState> = _state.asStateFlow()
@@ -84,6 +87,20 @@ class SessionCoordinator(
         val cached = currentSession ?: return Result.Err(
             DomainError.Validation(field = "session", message = "no session armed"),
         )
+
+        // T077: preflight (Block E) must pass before ARMED → RECORDING.
+        // State-machine guard runs first so an obviously-invalid call doesn't
+        // pay the cost of preflight (which can include I/O for permissions /
+        // GPS quality / storage etc).
+        when (val status = preflight.check()) {
+            is PreflightStatus.Ready -> Unit
+            is PreflightStatus.NotReady -> return Result.Err(
+                DomainError.Validation(
+                    field = "preflight",
+                    message = "preflight not ready: ${status.reasons.joinToString(", ")}",
+                ),
+            )
+        }
 
         val updated = cached.copy(
             state = RecordingState.RECORDING.wireValue,

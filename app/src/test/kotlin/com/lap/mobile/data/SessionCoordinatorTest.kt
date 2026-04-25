@@ -7,6 +7,9 @@ import com.lap.mobile.capture.LocationCaptureService
 import com.lap.mobile.capture.LocationSample
 import com.lap.mobile.capture.MotionCaptureService
 import com.lap.mobile.capture.MotionSample
+import com.lap.mobile.capture.PreflightGate
+import com.lap.mobile.capture.PreflightStatus
+import com.lap.mobile.core.DomainError
 import com.lap.mobile.core.Result
 import com.lap.schemas.v1.UUID7
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -179,11 +182,59 @@ class SessionCoordinatorTest {
         coord.stop()
     }
 
+    @Test
+    fun start_with_failing_preflight_returns_error_and_stays_armed() = runTest {
+        val notReady = PreflightStatus.NotReady(reasons = listOf("location_permission", "gps_accuracy"))
+        val coord = newCoordinator(emptyList(), emptyList(), preflight = PreflightGate { notReady })
+        coord.arm(sessionId)
+
+        val result = coord.start(backgroundScope)
+
+        assertTrue("expected Err, got $result", result is Result.Err)
+        val err = (result as Result.Err).error
+        assertTrue("expected Validation, got $err", err is DomainError.Validation)
+        // Reasons must surface so the UI (T097) can render specifics.
+        val message = (err as DomainError.Validation).message
+        assertTrue("message must mention location_permission, was: $message", "location_permission" in message)
+        assertTrue("message must mention gps_accuracy, was: $message", "gps_accuracy" in message)
+        assertEquals(RecordingState.ARMED, coord.state.value)
+    }
+
+    @Test
+    fun start_with_passing_preflight_proceeds_to_recording() = runTest {
+        val coord = newCoordinator(emptyList(), emptyList(), preflight = PreflightGate { PreflightStatus.Ready })
+        coord.arm(sessionId)
+
+        val result = coord.start(backgroundScope)
+        runCurrent()
+
+        assertTrue("expected Ok, got $result", result is Result.Ok)
+        assertEquals(RecordingState.RECORDING, coord.state.value)
+
+        coord.stop()
+    }
+
+    @Test
+    fun preflight_is_not_called_when_state_already_blocks_transition() = runTest {
+        var preflightInvocations = 0
+        val gate = PreflightGate {
+            preflightInvocations++
+            PreflightStatus.Ready
+        }
+        val coord = newCoordinator(emptyList(), emptyList(), preflight = gate)
+        // No arm() — start() is invalid from IDLE before preflight even matters.
+
+        coord.start(backgroundScope)
+
+        assertEquals("state-machine guard must short-circuit before preflight runs", 0, preflightInvocations)
+    }
+
     private fun newCoordinator(
         locationSamples: List<LocationSample>,
         motionSamples: List<MotionSample>,
         sessionDao: FakeSessionDao = FakeSessionDao(),
         journalDao: FakeJournalDao = FakeJournalDao(),
+        preflight: PreflightGate = PreflightGate { PreflightStatus.Ready },
     ): SessionCoordinator {
         val orchestrator = CaptureOrchestrator(
             location = LocationCaptureService(FixedLocationDataSource(locationSamples)),
@@ -195,6 +246,7 @@ class SessionCoordinatorTest {
             orchestrator = orchestrator,
             journalWriter = journalWriter,
             clock = FixedClock(now),
+            preflight = preflight,
         )
     }
 
