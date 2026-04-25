@@ -81,4 +81,9 @@
     <string name="manual_pairing_code_label">Pairing code</string>
     <string name="manual_pairing_submit">Pair this device</string>
     <string name="manual_pairing_progress_indicator">Pairing…</string>
+
+    <!-- Paired-device indicator (T181) — Settings shows whether/how the device is paired. -->
+    <string name="paired_device_status_not_paired">Not paired</string>
+    <string name="paired_device_status_paired">Paired</string>
+    <string name="paired_device_status_paired_with_identifier">Paired · %1$s</string>
 </resources>
