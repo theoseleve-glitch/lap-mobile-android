@@ -74,4 +74,11 @@
     <string name="qr_scanner_permission_required">Camera permission is required to scan pairing codes.</string>
     <string name="qr_scanner_grant_permission">Grant camera permission</string>
     <string name="qr_scanner_unrecognized_payload">That QR code isn\'t a LAP pairing code. Try the manual code option instead.</string>
+
+    <!-- Manual pairing code entry (T180) — fallback when camera scan isn't usable. -->
+    <string name="manual_pairing_title">Enter pairing code</string>
+    <string name="manual_pairing_help">Open the LAP webapp on a computer and copy the pairing code shown under your account.</string>
+    <string name="manual_pairing_code_label">Pairing code</string>
+    <string name="manual_pairing_submit">Pair this device</string>
+    <string name="manual_pairing_progress_indicator">Pairing…</string>
 </resources>
