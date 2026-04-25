@@ -2,6 +2,7 @@ package com.lap.mobile.data.bundle
 
 import com.lap.schemas.v1.LapSchemasJson
 import com.lap.schemas.v1.SessionManifest
+import com.lap.schemas.v1.TelemetrySample
 import com.lap.schemas.v1.UUID7
 import kotlinx.serialization.encodeToString
 import java.io.File
@@ -62,5 +63,53 @@ class BundleV2Writer(private val tempRoot: File, private val sessionId: UUID7) {
      */
     fun writeManifest(manifest: SessionManifest) {
         manifestFile.writeText(LapSchemasJson.encodeToString(manifest))
+    }
+
+    /**
+     * Write the per-sample telemetry as CSV-v2 (T133). Both the
+     * source-clock timestamp and the canonical-clock timestamp are
+     * carried per sample per ADR-007 — the server canonicalises
+     * server-side; the client ships both raw so the alignment is
+     * auditable.
+     *
+     * Header layout: `t_source_ns,t_canonical_ns,t_source_clock,
+     * <channelA>,<channelB>,...`. Channel names are the sorted union
+     * across every sample so the schema is deterministic; a sample
+     * missing a channel renders as an empty cell so the server can
+     * tell "not measured" from "measured = 0" (ADR-012).
+     */
+    fun writeTelemetry(samples: List<TelemetrySample>) {
+        val channelNames = samples.flatMap { it.channels.keys }.toSortedSet().toList()
+        val text = buildString {
+            appendCsvHeader(channelNames)
+            for (sample in samples) {
+                appendCsvRow(sample, channelNames)
+            }
+        }
+        telemetryFile.writeText(text)
+    }
+
+    private fun StringBuilder.appendCsvHeader(channelNames: List<String>) {
+        append(CSV_FIXED_HEADER)
+        for (channel in channelNames) {
+            append(',').append(channel)
+        }
+        append('\n')
+    }
+
+    private fun StringBuilder.appendCsvRow(sample: TelemetrySample, channelNames: List<String>) {
+        append(sample.tSourceNs.toString())
+        append(',').append(sample.tCanonicalNs.toString())
+        append(',').append(sample.tSourceClock)
+        for (channel in channelNames) {
+            append(',')
+            val value = sample.channels[channel]
+            if (value != null) append(value.toString())
+        }
+        append('\n')
+    }
+
+    companion object {
+        private const val CSV_FIXED_HEADER: String = "t_source_ns,t_canonical_ns,t_source_clock"
     }
 }
