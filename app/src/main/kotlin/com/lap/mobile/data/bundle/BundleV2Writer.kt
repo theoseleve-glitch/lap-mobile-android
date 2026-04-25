@@ -109,6 +109,15 @@ class BundleV2Writer(private val tempRoot: File, private val sessionId: UUID7) {
         lapsFile.writeText(LapSchemasJson.encodeToString(laps))
     }
 
+    /**
+     * Write the session event log as a polymorphic JSON array (T136).
+     * See [SessionEvent] for shape — server-side ingestion routes per
+     * the `type` discriminator.
+     */
+    fun writeEvents(events: List<SessionEvent>) {
+        eventsFile.writeText(LapSchemasJson.encodeToString(events))
+    }
+
     private fun StringBuilder.appendCsvRow(sample: TelemetrySample, channelNames: List<String>) {
         append(sample.tSourceNs.toString())
         append(',').append(sample.tCanonicalNs.toString())
