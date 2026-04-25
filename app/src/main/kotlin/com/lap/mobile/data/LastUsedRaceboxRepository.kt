@@ -15,6 +15,16 @@ data class LastUsedRacebox(
 )
 
 /**
+ * Read-only lookup seam over [LastUsedRaceboxRepository.get] (T125).
+ * Lets the auto-reconnect controller depend on a single-method
+ * surface — JVM tests pass a fixture lambda; production wires the
+ * repository instance.
+ */
+fun interface LastUsedRaceboxLookup {
+    suspend fun get(): LastUsedRacebox?
+}
+
+/**
  * Repository over [LastUsedRaceboxDao]. The "tap advertiser → connect →
  * remember" UX (T124) calls [saveSuccessfulPairing] **after** the GATT
  * handshake confirms — never on selection alone — so a failed pair
@@ -29,7 +39,7 @@ data class LastUsedRacebox(
 class LastUsedRaceboxRepository(
     private val dao: LastUsedRaceboxDao,
     private val now: () -> Instant = Instant::now,
-) {
+) : LastUsedRaceboxLookup {
     suspend fun saveSuccessfulPairing(address: String, name: String?) {
         dao.upsert(
             LastUsedRaceboxEntity(
@@ -41,7 +51,7 @@ class LastUsedRaceboxRepository(
         )
     }
 
-    suspend fun get(): LastUsedRacebox? = dao.get()?.let {
+    override suspend fun get(): LastUsedRacebox? = dao.get()?.let {
         LastUsedRacebox(address = it.address, name = it.name, savedAt = it.savedAt)
     }
 
