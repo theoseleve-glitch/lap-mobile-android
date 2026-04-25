@@ -45,6 +45,24 @@
                     android:scheme="lap"
                     android:host="pair" />
             </intent-filter>
+
+            <!-- App Links pairing deep link (T185) — universal-link form. -->
+            <!-- autoVerify="true" instructs the OS to fetch -->
+            <!-- https://app.lap-coach.racing/.well-known/assetlinks.json at -->
+            <!-- install / app-update time and confirm we own the domain. On -->
+            <!-- success the OS routes the URL silently to us (no chooser); -->
+            <!-- on failure it falls back to the chooser, same as the -->
+            <!-- lap-scheme filter above. -->
+            <!-- Constants kept in sync via AppLinksConfig (deeplink/). -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="app.lap-coach.racing"
+                    android:pathPrefix="/pair" />
+            </intent-filter>
         </activity>
 
         <service
