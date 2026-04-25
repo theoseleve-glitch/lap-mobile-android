@@ -112,6 +112,58 @@ class UploadOrchestrationTest {
         assertNull("permanent failure must clear nextRetryAt", update.nextRetryAt)
     }
 
+    @Test
+    fun retryable_failure_one_attempt_below_the_cap_still_re_queues() = runTest {
+        // Boundary lock: with MAX_ATTEMPTS_BEFORE_PERMANENT = 10, the 9th attempt
+        // failure (row.attemptCount = 8 → nextAttempt = 9) MUST remain queued.
+        val dao = FakeQueueDao(
+            rows = listOf(queuedRow().copy(attemptCount = UploadOrchestration.MAX_ATTEMPTS_BEFORE_PERMANENT - 2)),
+        )
+        val orchestration = UploadOrchestration(
+            queueDao = dao,
+            uploader = BundleUploader { _, _ ->
+                UploadResult.Retryable(httpCode = RETRY_HTTP, message = "timeout")
+            },
+            clock = FIXED_CLOCK,
+        )
+
+        val outcome = orchestration.runOnce()
+
+        assertEquals(UploadOutcome.Retry, outcome)
+        val update = requireNotNull(dao.lastUpdate)
+        assertEquals("queued", update.state)
+        assertEquals(UploadOrchestration.MAX_ATTEMPTS_BEFORE_PERMANENT - 1, update.attemptCount)
+    }
+
+    @Test
+    fun retryable_failure_at_the_max_attempt_flips_to_failed_permanent() = runTest {
+        // The 10th retryable response (row.attemptCount = 9 → nextAttempt = 10)
+        // is the last we accept — keep going and the user waits forever for an
+        // upload that's never going to succeed. Mark it failed_permanent so the
+        // worker stops scheduling it and the UI surfaces a manual-retry CTA.
+        val dao = FakeQueueDao(
+            rows = listOf(queuedRow().copy(attemptCount = UploadOrchestration.MAX_ATTEMPTS_BEFORE_PERMANENT - 1)),
+        )
+        val orchestration = UploadOrchestration(
+            queueDao = dao,
+            uploader = BundleUploader { _, _ ->
+                UploadResult.Retryable(httpCode = RETRY_HTTP, message = "timeout")
+            },
+            clock = FIXED_CLOCK,
+        )
+
+        val outcome = orchestration.runOnce()
+
+        assertEquals(UploadOutcome.PermanentFailure, outcome)
+        val update = requireNotNull(dao.lastUpdate)
+        assertEquals("failed_permanent", update.state)
+        assertEquals(UploadOrchestration.MAX_ATTEMPTS_BEFORE_PERMANENT, update.attemptCount)
+        // Still capture the last HTTP code + message — the dashboard renders
+        // these alongside the failed_permanent badge for diagnostics.
+        assertEquals(RETRY_HTTP, update.lastHttpCode)
+        assertEquals("timeout", update.lastError)
+    }
+
     private fun queuedRow(): UploadQueueEntity = UploadQueueEntity(
         sessionId = SESSION_ID,
         state = "queued",

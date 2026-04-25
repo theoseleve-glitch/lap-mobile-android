@@ -78,15 +78,21 @@ class UploadOrchestration @javax.inject.Inject constructor(
                 UploadOutcome.Success
             }
             is UploadResult.Retryable -> {
+                // Cap retries at MAX_ATTEMPTS_BEFORE_PERMANENT (T155). Past
+                // that bound a flapping endpoint or a quietly malformed
+                // bundle would otherwise keep the row in the queue forever;
+                // flipping to failed_permanent stops the scheduler and lets
+                // the UI surface a manual-retry CTA (T161).
+                val capReached = nextAttempt >= MAX_ATTEMPTS_BEFORE_PERMANENT
                 queueDao.updateAttempt(
                     sessionId = row.sessionId,
-                    state = STATE_QUEUED,
+                    state = if (capReached) STATE_FAILED_PERMANENT else STATE_QUEUED,
                     attemptCount = nextAttempt,
                     nextRetryAt = null,
                     lastHttpCode = result.httpCode,
                     lastError = result.message,
                 )
-                UploadOutcome.Retry
+                if (capReached) UploadOutcome.PermanentFailure else UploadOutcome.Retry
             }
             is UploadResult.PermanentFailure -> {
                 queueDao.updateAttempt(
@@ -100,5 +106,15 @@ class UploadOrchestration @javax.inject.Inject constructor(
                 UploadOutcome.PermanentFailure
             }
         }
+    }
+
+    companion object {
+        /**
+         * Hard cap on retry attempts before a session's queue row is
+         * marked failed_permanent (T155). The 10th retryable response is
+         * the last one we honour; anything beyond would leave a flapping
+         * endpoint (or a quietly malformed bundle) cycling forever.
+         */
+        const val MAX_ATTEMPTS_BEFORE_PERMANENT: Int = 10
     }
 }
