@@ -111,4 +111,9 @@
     <!-- Lap display (T194) — current lap number + lap-elapsed timer. -->
     <string name="lap_display_label">Lap</string>
     <string name="lap_display_number_format">%1$d</string>
+
+    <!-- GPS fix-quality indicator (T198) — red/yellow/green dot. -->
+    <string name="gps_fix_quality_good">GPS</string>
+    <string name="gps_fix_quality_marginal">GPS · weak</string>
+    <string name="gps_fix_quality_no_fix">No GPS</string>
 </resources>
