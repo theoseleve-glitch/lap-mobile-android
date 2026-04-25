@@ -53,4 +53,10 @@
     <string name="uploads_row_attempt_count">Attempt %1$d</string>
     <string name="uploads_action_retry">Retry</string>
     <string name="uploads_action_abandon">Abandon</string>
+
+    <!-- Per-session upload badge (T164) — one of four variants on the session list. -->
+    <string name="upload_badge_local">Local</string>
+    <string name="upload_badge_uploading">Uploading %1$d%%</string>
+    <string name="upload_badge_cloud_confirmed">Cloud-confirmed</string>
+    <string name="upload_badge_failed">Failed</string>
 </resources>
