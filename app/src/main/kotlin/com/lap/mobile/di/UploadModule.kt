@@ -8,6 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import java.time.Clock
 import javax.inject.Singleton
+import kotlin.random.Random
 
 private val PLACEHOLDER_HTTP_CODE: Int? = null
 
@@ -35,4 +36,16 @@ object UploadModule {
     fun provideBundleUploader(): BundleUploader = BundleUploader { _, _ ->
         UploadResult.Retryable(httpCode = PLACEHOLDER_HTTP_CODE, message = "uploader not yet implemented (T148)")
     }
+
+    /**
+     * [Random] feeds [com.lap.mobile.upload.BackoffSchedule]'s 0..25%
+     * jitter (T154/T169). `Random.Default` is fine in production —
+     * jitter only needs to de-correlate retries across the small
+     * fleet of devices, not be cryptographically strong. Tests
+     * substitute their own deterministic [Random] when they need to
+     * assert exact delay values.
+     */
+    @Provides
+    @Singleton
+    fun provideBackoffRandom(): Random = Random.Default
 }

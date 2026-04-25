@@ -2,6 +2,8 @@ package com.lap.mobile.upload
 
 import com.lap.mobile.data.UploadQueueDao
 import java.time.Clock
+import kotlin.random.Random
+import kotlin.time.toJavaDuration
 
 private const val STATE_QUEUED: String = "queued"
 private const val STATE_COMPLETED: String = "completed"
@@ -51,15 +53,19 @@ enum class UploadOutcome { NothingToDo, Success, Retry, PermanentFailure }
  *      code based on the [UploadResult].
  *
  * Returns an [UploadOutcome] the worker maps to a WorkManager Result
- * for the runtime. The [clock] dep is held for upcoming T154 backoff
- * computation (next_retry_at = now + delay) — currently unused, but
- * pinning it now keeps the worker DI graph stable across the next
- * few tasks.
+ * for the runtime. On a retryable failure (T169) the orchestrator
+ * stamps `next_retry_at = clock.instant() + BackoffSchedule.delayForAttempt`
+ * so WorkManager / a future scheduler can pace re-enqueue per the
+ * T154 curve instead of re-firing on the next constraint poll. The
+ * `random` parameter feeds [BackoffSchedule]'s 0..25% jitter; defaults
+ * to `Random.Default` so existing call sites that don't care about
+ * deterministic delay continue to compile.
  */
 class UploadOrchestration @javax.inject.Inject constructor(
     private val queueDao: UploadQueueDao,
     private val uploader: BundleUploader,
-    @Suppress("UnusedPrivateProperty") private val clock: Clock,
+    private val clock: Clock,
+    private val random: Random = Random.Default,
 ) {
     suspend fun runOnce(): UploadOutcome {
         val row = queueDao.dequeueNext() ?: return UploadOutcome.NothingToDo
@@ -84,11 +90,20 @@ class UploadOrchestration @javax.inject.Inject constructor(
                 // flipping to failed_permanent stops the scheduler and lets
                 // the UI surface a manual-retry CTA (T161).
                 val capReached = nextAttempt >= MAX_ATTEMPTS_BEFORE_PERMANENT
+                // Stamp next_retry_at on every Retryable that stays queued so
+                // WorkManager paces re-enqueue per the T154 backoff curve
+                // (T169). On the cap-reached flip to failed_permanent there's
+                // no scheduled retry — leave it null.
+                val backoffDelay = if (capReached) {
+                    null
+                } else {
+                    BackoffSchedule.delayForAttempt(attempt = nextAttempt, random = random)
+                }
                 queueDao.updateAttempt(
                     sessionId = row.sessionId,
                     state = if (capReached) STATE_FAILED_PERMANENT else STATE_QUEUED,
                     attemptCount = nextAttempt,
-                    nextRetryAt = null,
+                    nextRetryAt = backoffDelay?.let { clock.instant().plus(it.toJavaDuration()) },
                     lastHttpCode = result.httpCode,
                     lastError = result.message,
                 )
