@@ -124,7 +124,7 @@ class UploadOrchestrationTest {
 private class FakeQueueDao(private val rows: List<UploadQueueEntity>) : UploadQueueDao {
     var lastUpdate: AttemptUpdate? = null
 
-    override suspend fun enqueue(row: UploadQueueEntity) = error("not used in this test")
+    override suspend fun insertOrIgnore(row: UploadQueueEntity): Long = error("not used in this test")
 
     override suspend fun dequeueNext(state: String): UploadQueueEntity? = rows.firstOrNull { it.state == state }
 

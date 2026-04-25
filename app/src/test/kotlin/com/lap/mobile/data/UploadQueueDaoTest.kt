@@ -14,9 +14,21 @@ class UploadQueueDaoTest {
     @Test
     fun dao_declares_three_contract_methods() {
         val fnNames = UploadQueueDao::class.functions.map { it.name }.toSet()
-        assertTrue("enqueue missing: $fnNames", "enqueue" in fnNames)
+        assertTrue("insertOrIgnore missing: $fnNames", "insertOrIgnore" in fnNames)
         assertTrue("dequeueNext missing: $fnNames", "dequeueNext" in fnNames)
         assertTrue("updateAttempt missing: $fnNames", "updateAttempt" in fnNames)
+    }
+
+    @Test
+    fun insert_or_ignore_returns_long_rowid_so_callers_can_detect_conflicts() {
+        // Room maps @Insert(onConflict = IGNORE) → returns -1L when a row
+        // for the same primary key already exists. The enqueuer (T150)
+        // keys off this to choose Created vs AlreadyQueued.
+        val fn = UploadQueueDao::class.functions.first { it.name == "insertOrIgnore" }
+        assertTrue(
+            "insertOrIgnore must return Long (rowid; -1 on IGNORE conflict), got ${fn.returnType}",
+            fn.returnType.classifier == Long::class,
+        )
     }
 
     @Test
