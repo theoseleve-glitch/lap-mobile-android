@@ -15,7 +15,7 @@ package com.lap.mobile.capture
  * T097) can extend in either direction without breaking
  * [com.lap.mobile.data.SessionCoordinator].
  */
-interface PreflightService : PreflightGate
+fun interface PreflightService : PreflightGate
 
 /**
  * Default implementation: walks each [PreflightCheck] in the supplied
