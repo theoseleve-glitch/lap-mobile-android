@@ -10,8 +10,11 @@ import com.lap.schemas.v1.UUID7
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -53,6 +56,16 @@ class SessionCoordinator(
 
     private val _sampleCount: MutableStateFlow<Int> = MutableStateFlow(0)
     val sampleCount: StateFlow<Int> = _sampleCount.asStateFlow()
+
+    /**
+     * Fires once per successful [stop] (T078). `replay = 0` keeps it
+     * an *event* not a state — late subscribers don't see stale stops.
+     * `extraBufferCapacity = 1` lets `tryEmit` succeed in `stop` even
+     * with no subscriber attached.
+     */
+    private val _endEvents: MutableSharedFlow<SessionEndEvent> =
+        MutableSharedFlow(extraBufferCapacity = 1)
+    val endEvents: SharedFlow<SessionEndEvent> = _endEvents.asSharedFlow()
 
     private var currentSession: SessionEntity? = null
     private var captureJob: Job? = null
@@ -134,14 +147,28 @@ class SessionCoordinator(
         captureJob = null
         journalJob = null
 
+        val endedAt = Instant.now(clock)
+        val finalSampleCount = _sampleCount.value
         val updated = cached.copy(
             state = RecordingState.FINALIZING.wireValue,
-            endedAt = Instant.now(clock),
-            sampleCount = _sampleCount.value,
+            endedAt = endedAt,
+            sampleCount = finalSampleCount,
         )
         sessionDao.upsert(updated)
         currentSession = updated
         _state.value = RecordingState.FINALIZING
+
+        // T078: notify downstream (bundle writer T131, analytics) only AFTER
+        // the state flip + DAO write succeed — consumers see a coherent post-stop
+        // snapshot. Failed stops short-circuit above and never reach this emit.
+        _endEvents.tryEmit(
+            SessionEndEvent(
+                sessionId = cached.id,
+                endedAt = endedAt,
+                sampleCount = finalSampleCount,
+            ),
+        )
+
         return Result.Ok(Unit)
     }
 }

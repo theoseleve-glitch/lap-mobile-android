@@ -13,11 +13,15 @@ import com.lap.mobile.core.DomainError
 import com.lap.mobile.core.Result
 import com.lap.schemas.v1.UUID7
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.Instant
@@ -31,6 +35,7 @@ private const val LOC_RECEIPT_MS: Long = 10L
 private const val SAMPLE_COUNT_FIXTURE: Int = 4
 private const val HEARTBEAT_VIRTUAL_ADVANCE_MS: Long = 15_000L
 private const val EXPECTED_HEARTBEATS_OVER_15S: Int = 4
+private const val WAIT_FOR_NO_EVENT_MS: Long = 200L
 
 /**
  * Integration test for [SessionCoordinator] (T076). Exercises the
@@ -212,6 +217,41 @@ class SessionCoordinatorTest {
         assertEquals(RecordingState.RECORDING, coord.state.value)
 
         coord.stop()
+    }
+
+    @Test
+    fun stop_emits_session_end_event_with_session_id_ended_at_and_sample_count() = runTest {
+        val locationSamples = (1..SAMPLE_COUNT_FIXTURE).map { i -> locationSample(LOC_TS_NS_BASE + i) }
+        val coord = newCoordinator(locationSamples, emptyList())
+        coord.arm(sessionId)
+        coord.start(backgroundScope)
+        runCurrent()
+
+        val pending = async { coord.endEvents.first() }
+        runCurrent()
+        coord.stop()
+        val event = pending.await()
+
+        assertEquals(sessionId, event.sessionId)
+        assertEquals(SAMPLE_COUNT_FIXTURE, event.sampleCount)
+        // endedAt comes from the same FixedClock the coordinator uses.
+        assertEquals(now, event.endedAt)
+    }
+
+    @Test
+    fun stop_returning_error_does_not_emit_event() = runTest {
+        val coord = newCoordinator(emptyList(), emptyList())
+        // Try to stop from IDLE — invalid transition, no event should fire.
+
+        val maybeEvent = withTimeoutOrNull(WAIT_FOR_NO_EVENT_MS) {
+            val pending = async { coord.endEvents.first() }
+            runCurrent()
+            coord.stop()
+            pending.await()
+        }
+
+        // No event arrived during the wait window — withTimeoutOrNull returns null.
+        assertNull("stop() returning Err must NOT emit a SessionEndEvent", maybeEvent)
     }
 
     @Test
