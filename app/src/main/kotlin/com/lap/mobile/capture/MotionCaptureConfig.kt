@@ -1,6 +1,7 @@
 package com.lap.mobile.capture
 
 private const val MICROS_PER_SAMPLE_AT_50HZ: Int = 20_000
+private const val MICROS_PER_SAMPLE_AT_25HZ: Int = 40_000
 
 /**
  * Sampling-rate spec passed to [SensorManagerMotionDataSource] when
@@ -20,6 +21,16 @@ data class MotionCaptureConfig(
     companion object {
         val FIFTY_HERTZ: MotionCaptureConfig = MotionCaptureConfig(
             samplingPeriodMicros = MICROS_PER_SAMPLE_AT_50HZ,
+        )
+
+        /**
+         * Throttled tier used by [BatteryAwareMotionPolicy] when battery
+         * drops below 20 % (T073). Half the rate halves the IMU power
+         * draw without sacrificing the 0.04 s lap-edge resolution the
+         * orchestrator needs to align against GPS.
+         */
+        val TWENTY_FIVE_HERTZ: MotionCaptureConfig = MotionCaptureConfig(
+            samplingPeriodMicros = MICROS_PER_SAMPLE_AT_25HZ,
         )
     }
 }
