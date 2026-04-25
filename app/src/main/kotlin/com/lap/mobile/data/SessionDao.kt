@@ -33,4 +33,16 @@ interface SessionDao {
 
     @Query("SELECT * FROM sessions WHERE id = :id")
     suspend fun findById(id: UUID7): SessionEntity?
+
+    /**
+     * Hard-deletes the session row. The `upload_queue` row that
+     * references this session via `ON DELETE CASCADE` is swept by
+     * SQLite as part of the same transaction (see [UploadQueueEntity]).
+     * Returns the number of rows deleted (0 or 1) so callers can
+     * distinguish a real removal from a no-op when the row was already
+     * gone (concurrent T162 abandon, server-driven completion sweep,
+     * etc).
+     */
+    @Query("DELETE FROM sessions WHERE id = :id")
+    suspend fun deleteById(id: UUID7): Int
 }

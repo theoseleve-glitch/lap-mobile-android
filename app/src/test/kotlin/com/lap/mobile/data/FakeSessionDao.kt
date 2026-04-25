@@ -37,4 +37,6 @@ internal class FakeSessionDao : SessionDao {
     override fun observeByStatus(state: String): Flow<List<SessionEntity>> = emptyFlow()
 
     override suspend fun findById(id: UUID7): SessionEntity? = rows[id]
+
+    override suspend fun deleteById(id: UUID7): Int = if (rows.remove(id) != null) 1 else 0
 }
