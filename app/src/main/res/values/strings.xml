@@ -92,4 +92,9 @@
     <string name="session_expired_body">Your sign-in expired. Your local sessions and recordings are safe and will upload once you sign in again.</string>
     <string name="session_expired_action_sign_in">Sign in again</string>
     <string name="session_expired_action_dismiss">Later</string>
+
+    <!-- Biometric lock toggle (T188) — Settings → Security toggle to require biometric on app entry. -->
+    <string name="biometric_lock_toggle_title">Biometric lock</string>
+    <string name="biometric_lock_toggle_description">Require fingerprint or face unlock to open the app.</string>
+    <string name="biometric_lock_toggle_unavailable">Not available on this device.</string>
 </resources>

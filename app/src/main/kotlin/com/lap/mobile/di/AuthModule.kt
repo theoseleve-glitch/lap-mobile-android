@@ -1,7 +1,9 @@
 package com.lap.mobile.di
 
+import com.lap.mobile.auth.BiometricLockPreference
 import com.lap.mobile.auth.EncryptedPreferencesTokenStorage
 import com.lap.mobile.auth.SecureTokenStorage
+import com.lap.mobile.auth.SharedPreferencesBiometricLockPreference
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -26,4 +28,8 @@ abstract class AuthModule {
     @Binds
     @Singleton
     abstract fun bindSecureTokenStorage(impl: EncryptedPreferencesTokenStorage): SecureTokenStorage
+
+    @Binds
+    @Singleton
+    abstract fun bindBiometricLockPreference(impl: SharedPreferencesBiometricLockPreference): BiometricLockPreference
 }
