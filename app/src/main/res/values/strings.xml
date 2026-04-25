@@ -128,4 +128,8 @@
     <!-- Battery indicator (T201) — % display with warning at <20%. -->
     <string name="battery_indicator_format">%1$d%%</string>
     <string name="battery_indicator_low_format">Battery %1$d%% · low</string>
+
+    <!-- Recording-state strip (T202) — persistent across dashboard, binary capture state. -->
+    <string name="recording_strip_idle">Not recording</string>
+    <string name="recording_strip_active_format">● RECORDING · %1$s</string>
 </resources>
