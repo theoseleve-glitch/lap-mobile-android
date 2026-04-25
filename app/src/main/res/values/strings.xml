@@ -35,4 +35,11 @@
     <string name="ble_signal_good">Good</string>
     <string name="ble_signal_fair">Fair</string>
     <string name="ble_signal_poor">Poor</string>
+
+    <!-- RaceBox connection indicator (T130) — dashboard header status pill. -->
+    <string name="racebox_status_disconnected">RaceBox: not connected</string>
+    <string name="racebox_status_scanning">RaceBox: scanning…</string>
+    <string name="racebox_status_connecting">RaceBox: connecting…</string>
+    <string name="racebox_status_connected">RaceBox: connected</string>
+    <string name="racebox_status_lost">RaceBox: lost</string>
 </resources>
