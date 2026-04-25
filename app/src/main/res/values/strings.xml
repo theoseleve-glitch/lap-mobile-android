@@ -59,4 +59,12 @@
     <string name="upload_badge_uploading">Uploading %1$d%%</string>
     <string name="upload_badge_cloud_confirmed">Cloud-confirmed</string>
     <string name="upload_badge_failed">Failed</string>
+
+    <!-- Login screen (T172) — Clerk email + password + Google sign-in. -->
+    <string name="login_title">Sign in</string>
+    <string name="login_email_label">Email</string>
+    <string name="login_password_label">Password</string>
+    <string name="login_submit">Sign in</string>
+    <string name="login_google">Continue with Google</string>
+    <string name="login_progress_indicator">Signing in…</string>
 </resources>
