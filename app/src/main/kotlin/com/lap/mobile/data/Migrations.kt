@@ -148,3 +148,26 @@ val MIGRATION_6_7: Migration = object : Migration(6, 7) {
         )
     }
 }
+
+/**
+ * v7 → v8: add `last_used_racebox` (T124). Single-row "settings"-style
+ * table — id is the literal "singleton" sentinel so the device pairing
+ * UX has at most one persisted target per app install. No FK
+ * (RaceBox identity outlives any local session); savedAt lets a
+ * future "auto-clear stale pairings after N days" sweep remain a
+ * single SQL filter.
+ */
+val MIGRATION_7_8: Migration = object : Migration(7, 8) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS last_used_racebox (
+                id TEXT NOT NULL PRIMARY KEY,
+                address TEXT NOT NULL,
+                name TEXT,
+                saved_at TEXT NOT NULL
+            )
+            """.trimIndent(),
+        )
+    }
+}

@@ -22,8 +22,9 @@ import androidx.room.TypeConverters
         PrescriptionCacheEntity::class,
         TrackCacheEntity::class,
         RuleBundleEntity::class,
+        LastUsedRaceboxEntity::class,
     ],
-    version = 7,
+    version = 8,
     exportSchema = false,
 )
 @TypeConverters(LapTypeConverters::class)
@@ -36,8 +37,10 @@ abstract class LapDatabase : RoomDatabase() {
 
     abstract fun insightCacheDao(): InsightCacheDao
 
+    abstract fun lastUsedRaceboxDao(): LastUsedRaceboxDao
+
     companion object {
         const val DATABASE_NAME: String = "lap.db"
-        const val SCHEMA_VERSION: Int = 7
+        const val SCHEMA_VERSION: Int = 8
     }
 }
