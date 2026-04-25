@@ -67,4 +67,11 @@
     <string name="login_submit">Sign in</string>
     <string name="login_google">Continue with Google</string>
     <string name="login_progress_indicator">Signing in…</string>
+
+    <!-- QR scanner (T178) — pairing flow camera screen. -->
+    <string name="qr_scanner_title">Scan pairing code</string>
+    <string name="qr_scanner_help">Point your camera at the QR code shown in the LAP webapp.</string>
+    <string name="qr_scanner_permission_required">Camera permission is required to scan pairing codes.</string>
+    <string name="qr_scanner_grant_permission">Grant camera permission</string>
+    <string name="qr_scanner_unrecognized_payload">That QR code isn\'t a LAP pairing code. Try the manual code option instead.</string>
 </resources>
