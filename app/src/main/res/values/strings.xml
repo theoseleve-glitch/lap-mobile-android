@@ -124,4 +124,8 @@
     <string name="racebox_link_connected">RaceBox</string>
     <string name="racebox_link_pending">RaceBox · linking</string>
     <string name="racebox_link_disconnected">No RaceBox</string>
+
+    <!-- Battery indicator (T201) — % display with warning at <20%. -->
+    <string name="battery_indicator_format">%1$d%%</string>
+    <string name="battery_indicator_low_format">Battery %1$d%% · low</string>
 </resources>
