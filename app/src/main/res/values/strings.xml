@@ -86,4 +86,10 @@
     <string name="paired_device_status_not_paired">Not paired</string>
     <string name="paired_device_status_paired">Paired</string>
     <string name="paired_device_status_paired_with_identifier">Paired · %1$s</string>
+
+    <!-- Session expired modal (T186) — surfaces when refresh token expired without user-initiated logout. -->
+    <string name="session_expired_title">Session expired</string>
+    <string name="session_expired_body">Your sign-in expired. Your local sessions and recordings are safe and will upload once you sign in again.</string>
+    <string name="session_expired_action_sign_in">Sign in again</string>
+    <string name="session_expired_action_dismiss">Later</string>
 </resources>
