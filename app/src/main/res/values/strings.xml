@@ -104,4 +104,7 @@
     <string name="dashboard_lap_elapsed_ms">Elapsed: %1$d ms</string>
     <string name="dashboard_status_recording">RECORDING</string>
     <string name="dashboard_status_idle">Idle</string>
+
+    <!-- Speed gauge (T193) — large glanceable color-coded ring. -->
+    <string name="speed_gauge_unit_kmh">km/h</string>
 </resources>
