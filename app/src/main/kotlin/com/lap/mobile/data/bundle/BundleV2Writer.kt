@@ -139,6 +139,28 @@ class BundleV2Writer(private val tempRoot: File, private val sessionId: UUID7) {
         checksumsFile.writeText(text)
     }
 
+    /**
+     * Atomic rename of the in-progress `.tmp` bundle directory to the
+     * finalised `.bundle` directory (T138). On the same filesystem
+     * `File.renameTo` is atomic per POSIX rename(2) — either the
+     * destination becomes the temp dir's contents wholesale, or
+     * nothing changes. This is what makes the upload pipeline
+     * (T146+) safe to scan for `*.bundle/` directories without ever
+     * seeing a partial write.
+     *
+     * Refuses to overwrite an existing final dir — a duplicate
+     * finalise would otherwise destroy a prior session's artifacts.
+     * Returns `false` when the temp dir doesn't exist (prepare not
+     * called) or when the destination is occupied; the caller maps
+     * either to a finalisation-failure outcome.
+     *
+     */
+    fun finalizeBundle(): Boolean {
+        if (!bundleDir.isDirectory) return false
+        if (finalBundleDir.exists()) return false
+        return bundleDir.renameTo(finalBundleDir)
+    }
+
     private fun sha256Hex(file: File): String {
         val digest = MessageDigest.getInstance(SHA_256_ALGORITHM)
         file.inputStream().use { stream ->
