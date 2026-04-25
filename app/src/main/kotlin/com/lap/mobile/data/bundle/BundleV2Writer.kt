@@ -1,5 +1,6 @@
 package com.lap.mobile.data.bundle
 
+import com.lap.schemas.v1.LapRecord
 import com.lap.schemas.v1.LapSchemasJson
 import com.lap.schemas.v1.SessionManifest
 import com.lap.schemas.v1.TelemetrySample
@@ -95,6 +96,17 @@ class BundleV2Writer(private val tempRoot: File, private val sessionId: UUID7) {
             append(',').append(channel)
         }
         append('\n')
+    }
+
+    /**
+     * Write the lap records as a JSON array (T135). Lap and sector
+     * detection happens server-side from raw GPS per ADR-012; the
+     * client carries any laps it computed (or none) so the round-trip
+     * to the dashboard's offline cache (InsightCacheEntity, T045) is
+     * symmetric.
+     */
+    fun writeLaps(laps: List<LapRecord>) {
+        lapsFile.writeText(LapSchemasJson.encodeToString(laps))
     }
 
     private fun StringBuilder.appendCsvRow(sample: TelemetrySample, channelNames: List<String>) {
