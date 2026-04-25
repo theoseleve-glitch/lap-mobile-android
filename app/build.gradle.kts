@@ -173,6 +173,7 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.nordic.ble)
     implementation(libs.nordic.ble.ktx)
+    implementation(libs.nordic.scanner)
     implementation(project(":schemas"))
 
     testImplementation(libs.junit)

@@ -21,6 +21,7 @@ androidx-test-rules = "1.6.1"
 espresso-core = "3.6.1"
 play-services-location = "21.3.0"
 nordic-ble = "2.7.5"
+nordic-scanner = "1.6.0"
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core-ktx" }
@@ -53,6 +54,7 @@ androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-mani
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "play-services-location" }
 nordic-ble = { module = "no.nordicsemi.android:ble", version.ref = "nordic-ble" }
 nordic-ble-ktx = { module = "no.nordicsemi.android:ble-ktx", version.ref = "nordic-ble" }
+nordic-scanner = { module = "no.nordicsemi.android.support.v18:scanner", version.ref = "nordic-scanner" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
