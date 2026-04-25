@@ -1,6 +1,9 @@
 package com.lap.mobile.data.bundle
 
+import com.lap.schemas.v1.LapSchemasJson
+import com.lap.schemas.v1.SessionManifest
 import com.lap.schemas.v1.UUID7
+import kotlinx.serialization.encodeToString
 import java.io.File
 
 private const val SESSION_DIR_PREFIX: String = "session-"
@@ -49,5 +52,15 @@ class BundleV2Writer(private val tempRoot: File, private val sessionId: UUID7) {
      */
     fun prepare() {
         bundleDir.mkdirs()
+    }
+
+    /**
+     * Write the session manifest JSON (T132). Goes through
+     * [LapSchemasJson] so the wire payload is byte-for-byte aligned
+     * with the Pydantic source — snake_case keys, encoded defaults,
+     * ignore-unknown — matching ADR-012's ingestion contract.
+     */
+    fun writeManifest(manifest: SessionManifest) {
+        manifestFile.writeText(LapSchemasJson.encodeToString(manifest))
     }
 }
