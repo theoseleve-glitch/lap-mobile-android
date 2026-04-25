@@ -1,8 +1,6 @@
 package com.lap.mobile.capture
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -61,13 +59,4 @@ class LocationCaptureServiceTest {
             sourceTimestampNs = sourceTimestampNs,
             receiptUtcMillis = receiptUtcMillis,
         )
-}
-
-/**
- * Deterministic finite [LocationDataSource] for service tests — the
- * Flow completes after the last sample, so `toList()` returns without
- * any subscriber/emitter coordination.
- */
-private class FixedLocationDataSource(private val samples: List<LocationSample>) : LocationDataSource {
-    override fun samples(): Flow<LocationSample> = samples.asFlow()
 }

@@ -1,8 +1,6 @@
 package com.lap.mobile.capture
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -58,13 +56,4 @@ class MotionCaptureServiceTest {
 
         assertEquals(emptyList<MotionSample>(), collected)
     }
-}
-
-/**
- * Deterministic finite [MotionDataSource] for service tests — Flow
- * completes after the last sample, so `toList()` returns without any
- * subscriber/emitter coordination.
- */
-private class FixedMotionDataSource(private val samples: List<MotionSample>) : MotionDataSource {
-    override fun samples(): Flow<MotionSample> = samples.asFlow()
 }
