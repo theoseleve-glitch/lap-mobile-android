@@ -107,4 +107,8 @@
 
     <!-- Speed gauge (T193) — large glanceable color-coded ring. -->
     <string name="speed_gauge_unit_kmh">km/h</string>
+
+    <!-- Lap display (T194) — current lap number + lap-elapsed timer. -->
+    <string name="lap_display_label">Lap</string>
+    <string name="lap_display_number_format">%1$d</string>
 </resources>
