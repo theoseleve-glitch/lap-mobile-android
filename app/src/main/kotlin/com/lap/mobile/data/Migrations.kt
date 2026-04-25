@@ -171,3 +171,24 @@ val MIGRATION_7_8: Migration = object : Migration(7, 8) {
         )
     }
 }
+
+/**
+ * v8 → v9: add `upload_preferences` (T156). Singleton-row "settings"
+ * table mirroring the `last_used_racebox` shape — one row per app
+ * install, keyed by the literal "singleton" sentinel. Holds the
+ * user's upload toggles; T156 introduces `allow_metered` (default
+ * 0 = false = UNMETERED_ONLY); T157 + T158 will extend the row
+ * with WiFi-only and battery toggles.
+ */
+val MIGRATION_8_9: Migration = object : Migration(8, 9) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS upload_preferences (
+                id TEXT NOT NULL PRIMARY KEY,
+                allow_metered INTEGER NOT NULL DEFAULT 0
+            )
+            """.trimIndent(),
+        )
+    }
+}

@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Room
 import com.lap.mobile.BuildConfig
 import com.lap.mobile.data.LapDatabase
+import com.lap.mobile.data.UploadPreferencesDao
+import com.lap.mobile.data.UploadPreferencesRepository
 import com.lap.mobile.data.UploadQueueDao
 import com.lap.mobile.data.migrationPolicyFor
 import dagger.Module
@@ -39,4 +41,12 @@ object DatabaseModule {
 
     @Provides
     fun provideUploadQueueDao(db: LapDatabase): UploadQueueDao = db.uploadQueueDao()
+
+    @Provides
+    fun provideUploadPreferencesDao(db: LapDatabase): UploadPreferencesDao = db.uploadPreferencesDao()
+
+    @Provides
+    @Singleton
+    fun provideUploadPreferencesRepository(dao: UploadPreferencesDao): UploadPreferencesRepository =
+        UploadPreferencesRepository(dao)
 }
