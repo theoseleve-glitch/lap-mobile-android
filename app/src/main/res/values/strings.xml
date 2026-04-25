@@ -116,4 +116,7 @@
     <string name="gps_fix_quality_good">GPS</string>
     <string name="gps_fix_quality_marginal">GPS · weak</string>
     <string name="gps_fix_quality_no_fix">No GPS</string>
+
+    <!-- Sample-rate indicator (T199) — achieved Hz of recording pipeline. -->
+    <string name="sample_rate_format_hz">%1$d Hz</string>
 </resources>
