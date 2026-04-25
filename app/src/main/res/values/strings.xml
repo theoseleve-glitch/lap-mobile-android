@@ -42,4 +42,15 @@
     <string name="racebox_status_connecting">RaceBox: connecting…</string>
     <string name="racebox_status_connected">RaceBox: connected</string>
     <string name="racebox_status_lost">RaceBox: lost</string>
+
+    <!-- Uploads screen (T163) — active + failed queue dashboard. -->
+    <string name="uploads_title">Uploads</string>
+    <string name="uploads_section_active">Uploading</string>
+    <string name="uploads_section_failed">Failed</string>
+    <string name="uploads_empty_active">No uploads in flight</string>
+    <string name="uploads_empty_failed">No failed uploads</string>
+    <string name="uploads_row_chunks_progress">%1$d / %2$d chunks</string>
+    <string name="uploads_row_attempt_count">Attempt %1$d</string>
+    <string name="uploads_action_retry">Retry</string>
+    <string name="uploads_action_abandon">Abandon</string>
 </resources>
