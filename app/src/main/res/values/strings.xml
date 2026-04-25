@@ -15,4 +15,7 @@
     <string name="capture_notification_channel_name">Recording</string>
     <string name="capture_notification_title">Recording session</string>
     <string name="capture_notification_text">Capturing telemetry</string>
+
+    <!-- Live recording badge (T082) — shows current sample count during capture. -->
+    <string name="recording_sample_count_badge">%1$d samples</string>
 </resources>
