@@ -32,6 +32,19 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!-- Pairing deep link (T184) — webapp emits `lap://pair?token=…` -->
+            <!-- BROWSABLE so Chrome / system browser surfaces us as a handler -->
+            <!-- when a user taps the link from a web page. DEFAULT is required -->
+            <!-- by the system to satisfy implicit-intent dispatch. -->
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="lap"
+                    android:host="pair" />
+            </intent-filter>
         </activity>
 
         <service
