@@ -25,4 +25,14 @@
     <string name="preflight_status_not_ready_count">%1$d issue(s) blocking start</string>
     <string name="preflight_reason_label">%1$s</string>
     <string name="preflight_start_button">Start recording</string>
+
+    <!-- BLE scan results (T123) — RaceBox device picker after a scan. -->
+    <string name="ble_scan_results_title">Available RaceBox devices</string>
+    <string name="ble_scan_results_empty">No RaceBox devices found</string>
+    <string name="ble_scan_unnamed_advertiser">Unnamed device</string>
+    <string name="ble_scan_rssi">%1$d dBm</string>
+    <string name="ble_signal_excellent">Excellent</string>
+    <string name="ble_signal_good">Good</string>
+    <string name="ble_signal_fair">Fair</string>
+    <string name="ble_signal_poor">Poor</string>
 </resources>
