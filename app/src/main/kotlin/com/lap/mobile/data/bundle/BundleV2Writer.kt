@@ -7,6 +7,7 @@ import com.lap.schemas.v1.TelemetrySample
 import com.lap.schemas.v1.UUID7
 import kotlinx.serialization.encodeToString
 import java.io.File
+import java.security.MessageDigest
 
 private const val SESSION_DIR_PREFIX: String = "session-"
 private const val TEMP_DIR_SUFFIX: String = ".tmp"
@@ -118,6 +119,39 @@ class BundleV2Writer(private val tempRoot: File, private val sessionId: UUID7) {
         eventsFile.writeText(LapSchemasJson.encodeToString(events))
     }
 
+    /**
+     * Compute SHA-256 over each existing artifact and write a
+     * `<hex>  <filename>` line per file (T137). Format mirrors GNU
+     * `sha256sum` so a developer can verify a bundle on the
+     * command line. Files that don't exist are intentionally skipped
+     * — emitting a checksum line for an absent file would make the
+     * server-side integrity check (T144) fail looking for an
+     * artifact the bundle never had.
+     */
+    fun writeChecksums() {
+        val artifacts = listOf(manifestFile, telemetryFile, lapsFile, eventsFile)
+            .filter { it.isFile }
+        val text = buildString {
+            for (artifact in artifacts) {
+                append(sha256Hex(artifact)).append("  ").append(artifact.name).append('\n')
+            }
+        }
+        checksumsFile.writeText(text)
+    }
+
+    private fun sha256Hex(file: File): String {
+        val digest = MessageDigest.getInstance(SHA_256_ALGORITHM)
+        file.inputStream().use { stream ->
+            val buf = ByteArray(SHA_256_BUF_SIZE)
+            while (true) {
+                val n = stream.read(buf)
+                if (n <= 0) break
+                digest.update(buf, 0, n)
+            }
+        }
+        return digest.digest().joinToString(separator = "") { "%02x".format(it) }
+    }
+
     private fun StringBuilder.appendCsvRow(sample: TelemetrySample, channelNames: List<String>) {
         append(sample.tSourceNs.toString())
         append(',').append(sample.tCanonicalNs.toString())
@@ -132,5 +166,7 @@ class BundleV2Writer(private val tempRoot: File, private val sessionId: UUID7) {
 
     companion object {
         private const val CSV_FIXED_HEADER: String = "t_source_ns,t_canonical_ns,t_source_clock"
+        private const val SHA_256_ALGORITHM: String = "SHA-256"
+        private const val SHA_256_BUF_SIZE: Int = 8_192
     }
 }
