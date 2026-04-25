@@ -132,4 +132,13 @@
     <!-- Recording-state strip (T202) — persistent across dashboard, binary capture state. -->
     <string name="recording_strip_idle">Not recording</string>
     <string name="recording_strip_active_format">● RECORDING · %1$s</string>
+
+    <!-- Stop button (T203) — 0.5s hold + confirm dialog, two-layer accidental-stop guard. -->
+    <string name="stop_button_label">Stop</string>
+    <string name="stop_button_hold_hint">Hold to stop</string>
+    <string name="stop_button_content_description">Stop recording. Hold for half a second.</string>
+    <string name="stop_confirm_title">Stop recording?</string>
+    <string name="stop_confirm_body">Your session will be saved to local storage.</string>
+    <string name="stop_confirm_action">Stop recording</string>
+    <string name="stop_confirm_dismiss">Cancel</string>
 </resources>
