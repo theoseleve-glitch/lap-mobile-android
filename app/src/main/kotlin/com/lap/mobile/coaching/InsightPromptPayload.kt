@@ -1,5 +1,6 @@
 package com.lap.mobile.coaching
 
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 
@@ -69,17 +70,16 @@ data class InsightPromptPayload(
  * without coordinated client release; until client supports it,
  * it renders as MEDIUM).
  */
-fun parseInsightPromptPayload(insight: CoachingInsight): InsightPromptPayload? {
+fun parseInsightPromptPayload(
+    insight: CoachingInsight,
+    skillLevel: UserSkillLevel = UserSkillLevel.DEFAULT,
+): InsightPromptPayload? {
     val title = (insight.payload["title"] as? JsonPrimitive)
         ?.takeIf { it.isString }
         ?.contentOrNull
         ?.takeIf { it.isNotBlank() }
         ?: return null
-    val body = (insight.payload["body"] as? JsonPrimitive)
-        ?.takeIf { it.isString }
-        ?.contentOrNull
-        ?.takeIf { it.isNotEmpty() }
-        ?: return null
+    val body = extractBodyForSkillLevel(insight.payload, skillLevel) ?: return null
     val severity = parseSeverityOrMedium(insight.payload["severity"])
     return InsightPromptPayload(
         ruleId = insight.ruleId,
@@ -88,6 +88,46 @@ fun parseInsightPromptPayload(insight: CoachingInsight): InsightPromptPayload? {
         severity = severity,
     )
 }
+
+private fun extractBodyForSkillLevel(payload: JsonObject, skillLevel: UserSkillLevel): String? {
+    // T221 schema: `bodies` object keyed by lowercase tier name.
+    // Takes precedence over flat `body` so a partial-rollout
+    // window where the server ships both can still serve newer
+    // skill-aware clients the right variant.
+    val bodies = payload["bodies"] as? JsonObject
+    if (bodies != null) {
+        return selectBodyByTier(bodies, skillLevel)
+    }
+    // T217 schema: flat `body` string. Forward-compat with payloads
+    // shipped before T221's bodies field landed.
+    return (payload["body"] as? JsonPrimitive)
+        ?.takeIf { it.isString }
+        ?.contentOrNull
+        ?.takeIf { it.isNotEmpty() }
+}
+
+private fun selectBodyByTier(bodies: JsonObject, skillLevel: UserSkillLevel): String? {
+    val direct = bodies.getStringBody(skillLevel.name.lowercase())
+    if (direct != null) return direct
+    // Missing user's tier → fall back to INTERMEDIATE (broadest-
+    // applicable safe default — see UserSkillLevel.DEFAULT KDoc).
+    val intermediate = bodies.getStringBody(UserSkillLevel.DEFAULT.name.lowercase())
+    if (intermediate != null) return intermediate
+    // Last resort: any non-empty string body in the object so a
+    // partial-bodies rule (e.g., only beginner+expert shipped)
+    // still renders something.
+    return bodies.values.firstNotNullOfOrNull { element ->
+        (element as? JsonPrimitive)
+            ?.takeIf { it.isString }
+            ?.contentOrNull
+            ?.takeIf { it.isNotEmpty() }
+    }
+}
+
+private fun JsonObject.getStringBody(key: String): String? = (this[key] as? JsonPrimitive)
+    ?.takeIf { it.isString }
+    ?.contentOrNull
+    ?.takeIf { it.isNotEmpty() }
 
 private fun parseSeverityOrMedium(raw: kotlinx.serialization.json.JsonElement?): InsightSeverity {
     val text = (raw as? JsonPrimitive)?.takeIf { it.isString }?.contentOrNull

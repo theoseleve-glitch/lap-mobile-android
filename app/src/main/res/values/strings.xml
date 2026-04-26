@@ -172,4 +172,11 @@
     <string name="coaching_audio_cue_toggle_description">Speak the coaching tip headline when an insight fires. Interrupts music and navigation.</string>
     <string name="coaching_audio_cue_default_prefix">Coaching:</string>
     <string name="coaching_audio_cue_urgent_prefix">Important coaching:</string>
+
+    <!-- User skill level setting (T221) — drives coaching explanation variant. -->
+    <string name="user_skill_level_title">Skill level</string>
+    <string name="user_skill_level_description">Coaching tips are tuned to match your experience.</string>
+    <string name="user_skill_level_beginner">Beginner — first year of track time</string>
+    <string name="user_skill_level_intermediate">Intermediate — comfortable on track</string>
+    <string name="user_skill_level_expert">Expert — instructor or racer</string>
 </resources>
