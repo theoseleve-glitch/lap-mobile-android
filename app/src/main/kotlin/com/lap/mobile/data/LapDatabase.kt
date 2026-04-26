@@ -42,6 +42,8 @@ abstract class LapDatabase : RoomDatabase() {
 
     abstract fun uploadPreferencesDao(): UploadPreferencesDao
 
+    abstract fun ruleBundleDao(): RuleBundleDao
+
     companion object {
         const val DATABASE_NAME: String = "lap.db"
         const val SCHEMA_VERSION: Int = 10
