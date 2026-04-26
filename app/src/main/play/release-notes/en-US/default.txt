@@ -1,0 +1,7 @@
+Initial release.
+
+• Track-day GPS + motion telemetry capture
+• RaceBox BLE receiver support with phone-GPS fallback
+• Crash-safe session recording with automatic recovery on restart
+• Server-side lap detection, sector splits, and coaching insights
+• Telemetry opt-out toggle in Settings

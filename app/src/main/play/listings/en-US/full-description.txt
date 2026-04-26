@@ -1,0 +1,24 @@
+LAP captures rich track-day telemetry on your phone — lap times, sector splits, and the GPS + motion data your coach actually needs to find time.
+
+WHAT IT DOES
+• High-rate GPS capture (up to 25 Hz with a paired RaceBox receiver, or your phone's built-in receiver as a fallback)
+• Motion sensors (IMU) recorded alongside GPS so cornering, braking, and gear-shift behaviour is reviewable
+• Session bundles uploaded to the LAP backend where lap detection and sector splits are computed server-side
+• Coaching prompts surface during a session when the rule engine flags an opportunity (no local fakery — rules are authored server-side)
+• Crash-safe recording — a phone reboot, app kill, or airplane-mode toggle mid-session never loses more than the in-memory tail (a few seconds)
+
+WHAT IT DOES NOT DO
+• No on-device lap detection — laps and sectors are computed server-side from raw GPS so the algorithm stays consistent across drivers and devices
+• No coaching logic baked into the app — all rules ship from the backend so updates land without an app release
+• No sample fusion before upload — the raw streams are preserved per the data-quality contract so server-side analysis sees what actually happened
+
+REQUIREMENTS
+• Android 9 (Pie) or later
+• Location permission (foreground + background) so a session keeps recording when the screen is off
+• Notification permission so the foreground-service notification can keep the OS from killing the recording
+• Optional: Bluetooth permission and a paired RaceBox peripheral for higher-rate, higher-accuracy GPS
+
+PRIVACY
+• Sessions stay local until you upload them; nothing is sent in the background
+• Telemetry opt-out toggle in Settings disables crash reporting and product analytics SDKs at runtime
+• No advertising IDs collected
