@@ -24,3 +24,17 @@ internal val LapNeutral100 = Color(0xFFFFFFFF)
 
 internal val LapError40 = Color(0xFFB3261E)
 internal val LapError80 = Color(0xFFF2B8B5)
+
+// High-contrast palette (T208) — outdoor sunlight legibility.
+// Pure black background absorbs ambient light; max-chroma accents
+// stay visible when the screen reflects direct sun. NOT a comfort
+// palette — explicitly optimized for "I cannot read my screen
+// because the sun is on it." Matches NHRA / F1 dashboard convention:
+// pure black + saturated yellow primary + red for warnings.
+internal val LapHighContrastBlack = Color(0xFF000000)
+internal val LapHighContrastSurface = Color(0xFF1A1A1A)
+internal val LapHighContrastWhite = Color(0xFFFFFFFF)
+internal val LapHighContrastYellow = Color(0xFFFFD600)
+internal val LapHighContrastCyan = Color(0xFF00E5FF)
+internal val LapHighContrastMagenta = Color(0xFFFF40FF)
+internal val LapHighContrastRed = Color(0xFFFF1744)

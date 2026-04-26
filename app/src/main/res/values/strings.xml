@@ -151,4 +151,8 @@
     <!-- Voice announcements toggle (T207) — opt-in TTS for lap times. -->
     <string name="voice_announcement_toggle_title">Voice announcements</string>
     <string name="voice_announcement_toggle_description">Speak lap number and lap time when each lap completes.</string>
+
+    <!-- High-contrast theme toggle (T208) — opt-in outdoor-sunlight palette. -->
+    <string name="high_contrast_theme_toggle_title">High-contrast theme</string>
+    <string name="high_contrast_theme_toggle_description">Use a sunlight-legible palette (pure black background, max-chroma colors) for outdoor recording.</string>
 </resources>

@@ -1,5 +1,7 @@
 package com.lap.mobile.di
 
+import com.lap.mobile.dashboard.HighContrastThemePreference
+import com.lap.mobile.dashboard.SharedPreferencesHighContrastThemePreference
 import com.lap.mobile.dashboard.SharedPreferencesVoiceAnnouncementPreference
 import com.lap.mobile.dashboard.VoiceAnnouncementPreference
 import dagger.Binds
@@ -11,18 +13,17 @@ import javax.inject.Singleton
 /**
  * Wires the dashboard-layer SingletonComponent bindings.
  *
- * Currently only [VoiceAnnouncementPreference] (T207). Future
- * dashboard-related bindings (e.g., LapAnnouncementSpeaker when the
- * actual TextToSpeech wiring lands, possibly a SettingsRepository
- * if T208's high-contrast theme toggle needs persistence) will
- * land in this module — keeping all dashboard-layer wiring in one
- * place keeps the dependency graph obvious to anyone reading
- * `git log -p di/`.
+ * [VoiceAnnouncementPreference] (T207) and
+ * [HighContrastThemePreference] (T208). Future dashboard-related
+ * bindings (e.g., LapAnnouncementSpeaker when the actual
+ * TextToSpeech wiring lands) will land in this module — keeping
+ * all dashboard-layer wiring in one place keeps the dependency
+ * graph obvious to anyone reading `git log -p di/`.
  *
- * Production binds [SharedPreferencesVoiceAnnouncementPreference]
- * which uses regular SharedPreferences; tests bypass Hilt entirely
- * and use an in-memory fake of the [VoiceAnnouncementPreference]
- * interface.
+ * Production binds the SharedPreferences-backed impls (regular,
+ * not encrypted — these are UX preferences, not credentials).
+ * Tests bypass Hilt entirely and use in-memory fakes of the
+ * preference interfaces.
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -32,4 +33,10 @@ abstract class DashboardModule {
     abstract fun bindVoiceAnnouncementPreference(
         impl: SharedPreferencesVoiceAnnouncementPreference,
     ): VoiceAnnouncementPreference
+
+    @Binds
+    @Singleton
+    abstract fun bindHighContrastThemePreference(
+        impl: SharedPreferencesHighContrastThemePreference,
+    ): HighContrastThemePreference
 }
