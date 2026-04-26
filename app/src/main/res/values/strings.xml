@@ -159,8 +159,9 @@
     <!-- TalkBack accessibility announcements (T209). -->
     <string name="accessibility_speed_format">Speed: %1$d kilometers per hour</string>
 
-    <!-- Coaching prompt card (T217). -->
+    <!-- Coaching prompt card (T217 + T219). -->
     <string name="coaching_prompt_dismiss_action">Dismiss</string>
+    <string name="coaching_prompt_flag_action">Flag as wrong</string>
     <string name="coaching_prompt_severity_low">LOW</string>
     <string name="coaching_prompt_severity_medium">MEDIUM</string>
     <string name="coaching_prompt_severity_high">HIGH</string>

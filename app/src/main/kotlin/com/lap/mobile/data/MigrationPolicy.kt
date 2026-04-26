@@ -51,6 +51,7 @@ fun migrationPolicyFor(destructiveMigrationAllowed: Boolean): MigrationPolicy = 
         MIGRATION_7_8,
         MIGRATION_8_9,
         MIGRATION_9_10,
+        MIGRATION_10_11,
     ),
     destructiveFallback = destructiveMigrationAllowed,
 )

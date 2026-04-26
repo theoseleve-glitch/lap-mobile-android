@@ -24,8 +24,9 @@ import androidx.room.TypeConverters
         RuleBundleEntity::class,
         LastUsedRaceboxEntity::class,
         UploadPreferencesEntity::class,
+        CoachingFeedbackEntity::class,
     ],
-    version = 10,
+    version = 11,
     exportSchema = false,
 )
 @TypeConverters(LapTypeConverters::class)
@@ -44,8 +45,10 @@ abstract class LapDatabase : RoomDatabase() {
 
     abstract fun ruleBundleDao(): RuleBundleDao
 
+    abstract fun coachingFeedbackDao(): CoachingFeedbackDao
+
     companion object {
         const val DATABASE_NAME: String = "lap.db"
-        const val SCHEMA_VERSION: Int = 10
+        const val SCHEMA_VERSION: Int = 11
     }
 }

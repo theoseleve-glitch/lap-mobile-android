@@ -208,3 +208,29 @@ val MIGRATION_9_10: Migration = object : Migration(9, 10) {
         )
     }
 }
+
+/**
+ * v10 → v11: add `coaching_feedback` (T219). Append-only log of
+ * user dismissal + flag-as-wrong events on coaching prompts.
+ * Auto-incrementing PK so multiple flags on the same rule across
+ * sessions all persist; indexed on recorded_at so the future
+ * feedback uploader streams records chronologically without a
+ * full table scan.
+ */
+val MIGRATION_10_11: Migration = object : Migration(10, 11) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS coaching_feedback (
+                id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                rule_id TEXT NOT NULL,
+                kind TEXT NOT NULL,
+                recorded_at TEXT NOT NULL
+            )
+            """.trimIndent(),
+        )
+        db.execSQL(
+            "CREATE INDEX IF NOT EXISTS index_coaching_feedback_recorded_at ON coaching_feedback(recorded_at)",
+        )
+    }
+}

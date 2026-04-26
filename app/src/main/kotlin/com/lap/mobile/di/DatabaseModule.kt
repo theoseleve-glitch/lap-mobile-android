@@ -3,6 +3,7 @@ package com.lap.mobile.di
 import android.content.Context
 import androidx.room.Room
 import com.lap.mobile.BuildConfig
+import com.lap.mobile.data.CoachingFeedbackDao
 import com.lap.mobile.data.LapDatabase
 import com.lap.mobile.data.UploadPreferencesDao
 import com.lap.mobile.data.UploadPreferencesRepository
@@ -49,4 +50,7 @@ object DatabaseModule {
     @Singleton
     fun provideUploadPreferencesRepository(dao: UploadPreferencesDao): UploadPreferencesRepository =
         UploadPreferencesRepository(dao)
+
+    @Provides
+    fun provideCoachingFeedbackDao(db: LapDatabase): CoachingFeedbackDao = db.coachingFeedbackDao()
 }

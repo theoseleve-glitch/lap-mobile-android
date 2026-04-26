@@ -46,6 +46,7 @@ class MigrationPolicyTest {
                 7 to 8,
                 8 to 9,
                 9 to 10,
+                10 to 11,
             ),
             ranges,
         )

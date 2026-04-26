@@ -29,6 +29,7 @@ import com.lap.mobile.ui.theme.LapTheme
 private val CardOuterPadding = 16.dp
 private val CardInnerPadding = 16.dp
 private val TitleBodySpacing = 8.dp
+private val ButtonSpacing = 8.dp
 
 /**
  * Bottom-sheet-style coaching prompt card (T217) — stateless leaf
@@ -75,7 +76,12 @@ private val TitleBodySpacing = 8.dp
  * device-required].
  */
 @Composable
-fun CoachingPromptCard(payload: InsightPromptPayload, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
+fun CoachingPromptCard(
+    payload: InsightPromptPayload,
+    onDismiss: () -> Unit,
+    onFlagAsWrong: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val containerColor = payload.severity.containerColor()
     val contentColor = payload.severity.contentColor()
     val severityLabel = payload.severity.label()
@@ -117,8 +123,17 @@ fun CoachingPromptCard(payload: InsightPromptPayload, onDismiss: () -> Unit, mod
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.spacedBy(ButtonSpacing, Alignment.End),
             ) {
+                // Flag-as-wrong (T219) is the strong "this rule
+                // shouldn't have fired" signal. Placed left of
+                // Dismiss so the easier-to-tap right side is the
+                // common-case action (just close the card) per
+                // Material's recommendation that affirmative
+                // primary actions sit on the trailing edge.
+                TextButton(onClick = onFlagAsWrong) {
+                    Text(stringResource(R.string.coaching_prompt_flag_action))
+                }
                 TextButton(onClick = onDismiss) {
                     Text(stringResource(R.string.coaching_prompt_dismiss_action))
                 }
@@ -185,25 +200,33 @@ private val PreviewLongBodyPayload = InsightPromptPayload(
 @Preview(showBackground = true)
 @Composable
 private fun CoachingPromptCardLowPreview() {
-    LapTheme { CoachingPromptCard(payload = PreviewLowPayload, onDismiss = {}) }
+    LapTheme {
+        CoachingPromptCard(payload = PreviewLowPayload, onDismiss = {}, onFlagAsWrong = {})
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun CoachingPromptCardMediumPreview() {
-    LapTheme { CoachingPromptCard(payload = PreviewMediumPayload, onDismiss = {}) }
+    LapTheme {
+        CoachingPromptCard(payload = PreviewMediumPayload, onDismiss = {}, onFlagAsWrong = {})
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun CoachingPromptCardHighPreview() {
-    LapTheme { CoachingPromptCard(payload = PreviewHighPayload, onDismiss = {}) }
+    LapTheme {
+        CoachingPromptCard(payload = PreviewHighPayload, onDismiss = {}, onFlagAsWrong = {})
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun CoachingPromptCardLongBodyPreview() {
-    LapTheme { CoachingPromptCard(payload = PreviewLongBodyPayload, onDismiss = {}) }
+    LapTheme {
+        CoachingPromptCard(payload = PreviewLongBodyPayload, onDismiss = {}, onFlagAsWrong = {})
+    }
 }
 
 // endregion
