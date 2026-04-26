@@ -55,14 +55,15 @@ class DashboardViewModelTest {
     }
 
     @Test
-    fun default_is_not_recording_so_cold_launch_dashboard_shows_idle_state_not_a_phantom_active_session() {
+    fun default_recording_strip_state_is_idle_so_cold_launch_dashboard_shows_idle_not_phantom_active_session() {
         // The dashboard reuses across "pre-session", "live recording",
-        // "post-session review". The default isRecording=false makes
-        // sure cold-launch can't wrongly imply we're capturing data
-        // — important because a dashboard claiming "RECORDING" without
-        // an actual capture pipeline would be a UX lie.
+        // "post-session review". The default recordingStripState=Idle
+        // (T210 replaced T192's isRecording=false) makes sure cold-
+        // launch can't wrongly imply we're capturing data — important
+        // because a dashboard claiming "RECORDING" without an actual
+        // capture pipeline would be a UX lie.
         val state = DashboardUiState()
 
-        assertEquals(false, state.isRecording)
+        assertEquals(RecordingStripState.Idle, state.recordingStripState)
     }
 }

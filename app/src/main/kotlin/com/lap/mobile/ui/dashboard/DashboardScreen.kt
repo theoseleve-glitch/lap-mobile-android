@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lap.mobile.R
 import com.lap.mobile.dashboard.DashboardUiState
+import com.lap.mobile.dashboard.RecordingStripState
 import com.lap.mobile.ui.theme.LapTheme
 
 private val ScreenPadding = 24.dp
@@ -73,7 +74,7 @@ fun DashboardScreen(state: DashboardUiState, modifier: Modifier = Modifier) {
             )
             Text(
                 text =
-                if (state.isRecording) {
+                if (state.recordingStripState is RecordingStripState.Recording) {
                     stringResource(R.string.dashboard_status_recording)
                 } else {
                     stringResource(R.string.dashboard_status_idle)
@@ -101,7 +102,7 @@ private fun DashboardScreenLivePreview() {
                 currentSpeedKmh = PREVIEW_LIVE_SPEED_KMH,
                 currentLapNumber = PREVIEW_LIVE_LAP,
                 currentLapElapsedMs = PREVIEW_LIVE_ELAPSED_MS,
-                isRecording = true,
+                recordingStripState = RecordingStripState.Recording(sessionElapsedMs = PREVIEW_LIVE_ELAPSED_MS),
             ),
         )
     }
