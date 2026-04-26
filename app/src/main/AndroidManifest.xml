@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Location capture (T061/T062) -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -69,6 +70,16 @@
             android:name=".capture.CaptureForegroundService"
             android:exported="false"
             android:foregroundServiceType="location" />
+
+        <!-- WorkManager on-demand init via Hilt (T146): LapApplication impls -->
+        <!-- Configuration.Provider, so the auto-merged AndroidX Startup -->
+        <!-- InitializationProvider must be removed or both end up trying to -->
+        <!-- initialise WorkManager, which Android lint flags as fatal in a -->
+        <!-- release build (RemoveWorkManagerInitializer). -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:node="remove" />
     </application>
 
 </manifest>
