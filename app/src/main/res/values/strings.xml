@@ -147,4 +147,8 @@
     <string name="exit_confirm_body">Recording continues in the background. Tap the notification to return.</string>
     <string name="exit_confirm_action">Leave</string>
     <string name="exit_confirm_dismiss">Stay</string>
+
+    <!-- Voice announcements toggle (T207) — opt-in TTS for lap times. -->
+    <string name="voice_announcement_toggle_title">Voice announcements</string>
+    <string name="voice_announcement_toggle_description">Speak lap number and lap time when each lap completes.</string>
 </resources>
