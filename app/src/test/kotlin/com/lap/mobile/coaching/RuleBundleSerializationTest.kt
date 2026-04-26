@@ -115,8 +115,12 @@ class RuleBundleSerializationTest {
         assertEquals("br.late_braking.apex_speed_loss", rule.id)
         assertEquals("technique", rule.category)
         assertEquals(3, rule.minCorroboratingLaps)
-        assertTrue(rule.condition is JsonObject)
-        assertTrue(rule.insight is JsonObject)
+        // condition + insight are JsonObject by field type — locked
+        // by Rule.kt's declaration. Spot-check a known nested field
+        // so a future schema reshape that changes JsonObject → some
+        // other JsonElement variant fails this test.
+        assertTrue(rule.condition.containsKey("type"))
+        assertTrue(rule.insight.containsKey("category"))
     }
 
     @Test
