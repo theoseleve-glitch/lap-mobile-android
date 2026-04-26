@@ -155,4 +155,7 @@
     <!-- High-contrast theme toggle (T208) — opt-in outdoor-sunlight palette. -->
     <string name="high_contrast_theme_toggle_title">High-contrast theme</string>
     <string name="high_contrast_theme_toggle_description">Use a sunlight-legible palette (pure black background, max-chroma colors) for outdoor recording.</string>
+
+    <!-- TalkBack accessibility announcements (T209). -->
+    <string name="accessibility_speed_format">Speed: %1$d kilometers per hour</string>
 </resources>

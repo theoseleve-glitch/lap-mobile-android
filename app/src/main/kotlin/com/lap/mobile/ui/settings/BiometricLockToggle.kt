@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lap.mobile.R
@@ -56,7 +57,8 @@ fun BiometricLockToggle(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = RowHorizontalPadding, vertical = RowVerticalPadding),
+            .padding(horizontal = RowHorizontalPadding, vertical = RowVerticalPadding)
+            .semantics(mergeDescendants = true) {},
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
