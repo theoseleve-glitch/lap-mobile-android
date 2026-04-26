@@ -40,4 +40,25 @@ data class Rule(
     val insight: JsonObject,
     @SerialName("min_corroborating_laps")
     val minCorroboratingLaps: Int = 1,
+    /**
+     * Platform / context tags this rule opts into (T216). Used by
+     * [subsetForMobileRealLife] to load only the rules tagged
+     * `"mobile_real_life"` and drop desktop/simulator-only rules
+     * that would either no-op (no relevant features computed) or
+     * fire spuriously on mobile.
+     *
+     * Defaults to `emptyList()` so existing bundles parse without
+     * the field; lapJson's `encodeDefaults = false` keeps the
+     * field off the wire when unused. Mirrors the desktop spec's
+     * forward-compat policy.
+     *
+     * STRICT opt-in semantics: an untagged rule is excluded from
+     * the mobile subset (server author has to consciously add the
+     * tag). Permissive default ("untagged means everywhere") was
+     * rejected because a noisy desktop-tuned rule accidentally
+     * firing in the recording foreground service is a regression
+     * worth catching at filter time.
+     */
+    @SerialName("applicable_to")
+    val applicableTo: List<String> = emptyList(),
 )
