@@ -165,4 +165,10 @@
     <string name="coaching_prompt_severity_medium">MEDIUM</string>
     <string name="coaching_prompt_severity_high">HIGH</string>
     <string name="coaching_prompt_a11y_description_format">%1$s priority coaching insight: %2$s. %3$s</string>
+
+    <!-- Coaching audio cue toggle + spoken-text prefixes (T218). -->
+    <string name="coaching_audio_cue_toggle_title">Coaching audio cues</string>
+    <string name="coaching_audio_cue_toggle_description">Speak the coaching tip headline when an insight fires. Interrupts music and navigation.</string>
+    <string name="coaching_audio_cue_default_prefix">Coaching:</string>
+    <string name="coaching_audio_cue_urgent_prefix">Important coaching:</string>
 </resources>

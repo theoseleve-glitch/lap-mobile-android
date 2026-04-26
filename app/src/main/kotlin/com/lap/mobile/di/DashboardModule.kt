@@ -1,5 +1,7 @@
 package com.lap.mobile.di
 
+import com.lap.mobile.coaching.CoachingAudioCuePreference
+import com.lap.mobile.coaching.SharedPreferencesCoachingAudioCuePreference
 import com.lap.mobile.dashboard.HighContrastThemePreference
 import com.lap.mobile.dashboard.SharedPreferencesHighContrastThemePreference
 import com.lap.mobile.dashboard.SharedPreferencesVoiceAnnouncementPreference
@@ -39,4 +41,10 @@ abstract class DashboardModule {
     abstract fun bindHighContrastThemePreference(
         impl: SharedPreferencesHighContrastThemePreference,
     ): HighContrastThemePreference
+
+    @Binds
+    @Singleton
+    abstract fun bindCoachingAudioCuePreference(
+        impl: SharedPreferencesCoachingAudioCuePreference,
+    ): CoachingAudioCuePreference
 }
