@@ -9,7 +9,10 @@ import com.lap.mobile.capture.MotionCaptureService
 import com.lap.mobile.capture.MotionSample
 import com.lap.mobile.capture.PreflightGate
 import com.lap.mobile.capture.PreflightStatus
+import com.lap.mobile.core.AnalyticsEvent
+import com.lap.mobile.core.AnalyticsReporter
 import com.lap.mobile.core.DomainError
+import com.lap.mobile.core.NoOpAnalyticsReporter
 import com.lap.mobile.core.Result
 import com.lap.schemas.v1.UUID7
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -269,12 +272,71 @@ class SessionCoordinatorTest {
         assertEquals("state-machine guard must short-circuit before preflight runs", 0, preflightInvocations)
     }
 
+    @Test
+    fun start_emits_session_started_analytics_event() = runTest {
+        val analytics = RecordingAnalyticsReporter()
+        val coord = newCoordinator(emptyList(), emptyList(), analyticsReporter = analytics)
+        coord.arm(sessionId)
+
+        coord.start(backgroundScope)
+
+        val started = analytics.events.filter { it.name == AnalyticsEvent.SESSION_STARTED }
+        assertEquals(1, started.size)
+        assertEquals(sessionId, started.single().properties["session_id"])
+    }
+
+    @Test
+    fun stop_emits_session_finalized_analytics_event_with_sample_count() = runTest {
+        val analytics = RecordingAnalyticsReporter()
+        val coord = newCoordinator(emptyList(), emptyList(), analyticsReporter = analytics)
+        coord.arm(sessionId)
+        coord.start(backgroundScope)
+        runCurrent()
+
+        coord.stop()
+
+        val finalized = analytics.events.filter { it.name == AnalyticsEvent.SESSION_FINALIZED }
+        assertEquals(1, finalized.size)
+        val event = finalized.single()
+        assertEquals(sessionId, event.properties["session_id"])
+        assertEquals(0, event.properties["sample_count"])
+    }
+
+    @Test
+    fun start_failing_preflight_does_not_emit_session_started() = runTest {
+        val analytics = RecordingAnalyticsReporter()
+        val coord = newCoordinator(
+            locationSamples = emptyList(),
+            motionSamples = emptyList(),
+            preflight = PreflightGate { PreflightStatus.NotReady(reasons = listOf("test-reason")) },
+            analyticsReporter = analytics,
+        )
+        coord.arm(sessionId)
+
+        val result = coord.start(backgroundScope)
+
+        assertTrue("expected Err, got $result", result is Result.Err)
+        assertTrue("preflight-fail must not fire session_started", analytics.events.isEmpty())
+    }
+
+    @Test
+    fun stop_returning_error_does_not_emit_session_finalized() = runTest {
+        val analytics = RecordingAnalyticsReporter()
+        val coord = newCoordinator(emptyList(), emptyList(), analyticsReporter = analytics)
+        // No arm() — stop from IDLE is an invalid transition, must NOT fire analytics.
+
+        coord.stop()
+
+        assertTrue("invalid stop must not fire session_finalized", analytics.events.isEmpty())
+    }
+
     private fun newCoordinator(
         locationSamples: List<LocationSample>,
         motionSamples: List<MotionSample>,
         sessionDao: FakeSessionDao = FakeSessionDao(),
         journalDao: FakeJournalDao = FakeJournalDao(),
         preflight: PreflightGate = PreflightGate { PreflightStatus.Ready },
+        analyticsReporter: AnalyticsReporter = NoOpAnalyticsReporter,
     ): SessionCoordinator {
         val orchestrator = CaptureOrchestrator(
             location = LocationCaptureService(FixedLocationDataSource(locationSamples)),
@@ -287,8 +349,19 @@ class SessionCoordinatorTest {
             journalWriter = journalWriter,
             clock = FixedClock(now),
             preflight = preflight,
+            analyticsReporter = analyticsReporter,
         )
     }
+
+    private class RecordingAnalyticsReporter : AnalyticsReporter {
+        val events: MutableList<RecordedEvent> = mutableListOf()
+
+        override fun track(event: String, properties: Map<String, Any>) {
+            events += RecordedEvent(event, properties)
+        }
+    }
+
+    private data class RecordedEvent(val name: String, val properties: Map<String, Any>)
 
     private fun locationSample(sourceNs: Long): LocationSample = LocationSample(
         latitude = LATITUDE,

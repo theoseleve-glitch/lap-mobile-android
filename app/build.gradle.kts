@@ -180,6 +180,7 @@ dependencies {
     implementation(libs.androidx.camera.view)
     implementation(libs.mlkit.barcode.scanning)
     implementation(libs.sentry.android.core)
+    implementation(libs.posthog.android)
 
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)

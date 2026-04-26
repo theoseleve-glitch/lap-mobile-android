@@ -3,7 +3,10 @@ package com.lap.mobile.data
 import com.lap.mobile.capture.CaptureOrchestrator
 import com.lap.mobile.capture.PreflightGate
 import com.lap.mobile.capture.PreflightStatus
+import com.lap.mobile.core.AnalyticsEvent
+import com.lap.mobile.core.AnalyticsReporter
 import com.lap.mobile.core.DomainError
+import com.lap.mobile.core.NoOpAnalyticsReporter
 import com.lap.mobile.core.Result
 import com.lap.schemas.v1.SourceTag
 import com.lap.schemas.v1.UUID7
@@ -50,6 +53,7 @@ class SessionCoordinator(
     private val journalWriter: JournalWriter,
     private val clock: Clock,
     private val preflight: PreflightGate,
+    private val analyticsReporter: AnalyticsReporter = NoOpAnalyticsReporter,
 ) {
     private val _state: MutableStateFlow<RecordingState> = MutableStateFlow(RecordingState.IDLE)
     val state: StateFlow<RecordingState> = _state.asStateFlow()
@@ -128,6 +132,14 @@ class SessionCoordinator(
         }
         journalJob = journalWriter.start(scope, cached.id) { _sampleCount.value.toLong() }
 
+        // T223: emit `session_started` AFTER preflight pass + state flip + DAO
+        // write so the analytics event reflects a successfully-running session,
+        // not an aborted one. The early-return arms above all bypass this line.
+        analyticsReporter.track(
+            AnalyticsEvent.SESSION_STARTED,
+            properties = mapOf("session_id" to cached.id),
+        )
+
         return Result.Ok(Unit)
     }
 
@@ -166,6 +178,16 @@ class SessionCoordinator(
                 sessionId = cached.id,
                 endedAt = endedAt,
                 sampleCount = finalSampleCount,
+            ),
+        )
+
+        // T223: `session_finalized` lands here, sharing the same post-write
+        // ordering invariant as the SessionEndEvent emit above.
+        analyticsReporter.track(
+            AnalyticsEvent.SESSION_FINALIZED,
+            properties = mapOf(
+                "session_id" to cached.id,
+                "sample_count" to finalSampleCount,
             ),
         )
 

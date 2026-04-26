@@ -3,12 +3,17 @@ package com.lap.mobile
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.lap.mobile.core.AnalyticsEvent
+import com.lap.mobile.core.AnalyticsReporter
 import com.lap.mobile.core.NoOpSentryReporter
 import com.lap.mobile.core.SentryReporter
 import com.lap.mobile.core.SentrySdkReporter
 import com.lap.mobile.core.configureSentryOptions
 import com.lap.mobile.core.createLoggingTree
+import com.lap.mobile.core.isRealPostHogKey
 import com.lap.mobile.core.isRealSentryDsn
+import com.posthog.android.PostHogAndroid
+import com.posthog.android.PostHogAndroidConfig
 import dagger.hilt.android.HiltAndroidApp
 import io.sentry.android.core.SentryAndroid
 import timber.log.Timber
@@ -41,6 +46,9 @@ class LapApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
+    @Inject
+    lateinit var analyticsReporter: AnalyticsReporter
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
@@ -50,6 +58,8 @@ class LapApplication : Application(), Configuration.Provider {
         super.onCreate()
         val sentryReporter = initSentryIfConfigured()
         Timber.plant(createLoggingTree(debug = BuildConfig.DEBUG, sentryReporter = sentryReporter))
+        initPostHogIfConfigured()
+        analyticsReporter.track(AnalyticsEvent.APP_STARTED)
     }
 
     private fun initSentryIfConfigured(): SentryReporter {
@@ -67,5 +77,32 @@ class LapApplication : Application(), Configuration.Provider {
             )
         }
         return SentrySdkReporter()
+    }
+
+    /**
+     * T223: PostHog SDK init guarded the same way Sentry is — placeholder
+     * keys (`phc_placeholder_<flavor>`) skip init entirely so the SDK's
+     * batching loop doesn't run against a dead key. The Hilt-bound
+     * [AnalyticsReporter] (see [com.lap.mobile.di.AnalyticsModule])
+     * is statically resolved to [com.lap.mobile.core.NoOpAnalyticsReporter]
+     * in that case so subsequent `track()` calls are silent.
+     *
+     * Why init in onCreate (not from the @Provides method): same
+     * reason as Sentry — keeps the Application-scoped lifecycle
+     * bootstrap in one place, makes the init order obvious in
+     * `git log -p LapApplication.kt` and lets a future task that
+     * needs to re-init (e.g., toggling captureScreenViews from
+     * Settings) hold the handle on this class rather than fighting
+     * Hilt's component lifecycle.
+     */
+    private fun initPostHogIfConfigured() {
+        val apiKey = BuildConfig.POSTHOG_KEY
+        if (!isRealPostHogKey(apiKey)) {
+            return
+        }
+        val config = PostHogAndroidConfig(apiKey = apiKey).apply {
+            debug = BuildConfig.DEBUG
+        }
+        PostHogAndroid.setup(this, config)
     }
 }

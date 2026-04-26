@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.lap.mobile.core.AnalyticsEvent
+import com.lap.mobile.core.AnalyticsReporter
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -20,15 +22,25 @@ import dagger.assisted.AssistedInject
  * scheduling); PermanentFailure → failure() so the worker is
  * removed from the schedule (the row stays at failed_permanent for
  * the user to manually retry per T161).
+ *
+ * T223: only the genuine [UploadOutcome.Success] arm fires the
+ * `upload_completed` analytics event — [UploadOutcome.NothingToDo]
+ * is the queue-drained idle case and does not represent a user-
+ * visible upload completing.
  */
 @HiltWorker
 class UploadBundleWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val orchestration: UploadOrchestration,
+    private val analyticsReporter: AnalyticsReporter,
 ) : CoroutineWorker(appContext, workerParams) {
     override suspend fun doWork(): Result = when (orchestration.runOnce()) {
-        UploadOutcome.NothingToDo, UploadOutcome.Success -> Result.success()
+        UploadOutcome.NothingToDo -> Result.success()
+        UploadOutcome.Success -> {
+            analyticsReporter.track(AnalyticsEvent.UPLOAD_COMPLETED)
+            Result.success()
+        }
         UploadOutcome.Retry -> Result.retry()
         UploadOutcome.PermanentFailure -> Result.failure()
     }
