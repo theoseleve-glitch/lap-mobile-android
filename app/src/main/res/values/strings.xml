@@ -141,4 +141,10 @@
     <string name="stop_confirm_body">Your session will be saved to local storage.</string>
     <string name="stop_confirm_action">Stop recording</string>
     <string name="stop_confirm_dismiss">Cancel</string>
+
+    <!-- Back-gesture intercept (T204) — confirm before leaving dashboard mid-recording. -->
+    <string name="exit_confirm_title">Leave dashboard?</string>
+    <string name="exit_confirm_body">Recording continues in the background. Tap the notification to return.</string>
+    <string name="exit_confirm_action">Leave</string>
+    <string name="exit_confirm_dismiss">Stay</string>
 </resources>
