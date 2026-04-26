@@ -1,6 +1,7 @@
 package com.lap.mobile.dashboard
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -65,5 +66,75 @@ class DashboardViewModelTest {
         val state = DashboardUiState()
 
         assertEquals(RecordingStripState.Idle, state.recordingStripState)
+    }
+
+    // T226: locks T210's recording lifecycle methods so a future
+    // refactor (e.g., wiring SessionCoordinator's state flow directly)
+    // can't silently drop the Idle ↔ Recording transitions the
+    // back-intercept / screen-wake / orientation-lock policies depend
+    // on for their session-mode verdicts.
+
+    @Test
+    fun on_recording_started_flips_strip_to_recording_with_zero_default_elapsed() {
+        val viewModel = DashboardViewModel()
+
+        viewModel.onRecordingStarted()
+
+        val recording = viewModel.state.value.recordingStripState
+        assertTrue("expected Recording, got $recording", recording is RecordingStripState.Recording)
+        assertEquals(0L, (recording as RecordingStripState.Recording).sessionElapsedMs)
+    }
+
+    @Test
+    fun on_recording_started_with_non_zero_elapsed_carries_value_to_state() {
+        val viewModel = DashboardViewModel()
+
+        viewModel.onRecordingStarted(sessionElapsedMs = MID_SESSION_ELAPSED_MS)
+
+        val recording = viewModel.state.value.recordingStripState as RecordingStripState.Recording
+        assertEquals(MID_SESSION_ELAPSED_MS, recording.sessionElapsedMs)
+    }
+
+    @Test
+    fun on_recording_stopped_returns_strip_to_idle() {
+        val viewModel = DashboardViewModel()
+        viewModel.onRecordingStarted(sessionElapsedMs = MID_SESSION_ELAPSED_MS)
+
+        viewModel.onRecordingStopped()
+
+        assertEquals(RecordingStripState.Idle, viewModel.state.value.recordingStripState)
+    }
+
+    @Test
+    fun on_recording_started_then_stopped_then_started_cycles_strip_state_correctly() {
+        val viewModel = DashboardViewModel()
+
+        viewModel.onRecordingStarted()
+        assertTrue(viewModel.state.value.recordingStripState is RecordingStripState.Recording)
+
+        viewModel.onRecordingStopped()
+        assertEquals(RecordingStripState.Idle, viewModel.state.value.recordingStripState)
+
+        viewModel.onRecordingStarted(sessionElapsedMs = SECOND_SESSION_ELAPSED_MS)
+        val secondRecording = viewModel.state.value.recordingStripState as RecordingStripState.Recording
+        assertEquals(SECOND_SESSION_ELAPSED_MS, secondRecording.sessionElapsedMs)
+    }
+
+    @Test
+    fun on_recording_started_does_not_change_other_dashboard_fields() {
+        val viewModel = DashboardViewModel()
+        val before = viewModel.state.value
+
+        viewModel.onRecordingStarted()
+
+        val after = viewModel.state.value
+        assertEquals(before.currentSpeedKmh, after.currentSpeedKmh, 0.0001)
+        assertEquals(before.currentLapNumber, after.currentLapNumber)
+        assertEquals(before.currentLapElapsedMs, after.currentLapElapsedMs)
+    }
+
+    private companion object {
+        private const val MID_SESSION_ELAPSED_MS: Long = 42_000L
+        private const val SECOND_SESSION_ELAPSED_MS: Long = 7_500L
     }
 }
