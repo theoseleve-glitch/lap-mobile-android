@@ -6,8 +6,10 @@ import androidx.work.Configuration
 import com.lap.mobile.core.AnalyticsEvent
 import com.lap.mobile.core.AnalyticsReporter
 import com.lap.mobile.core.NoOpSentryReporter
+import com.lap.mobile.core.OptOutAwareSentryReporter
 import com.lap.mobile.core.SentryReporter
 import com.lap.mobile.core.SentrySdkReporter
+import com.lap.mobile.core.TelemetryOptOutPreference
 import com.lap.mobile.core.configureSentryOptions
 import com.lap.mobile.core.createLoggingTree
 import com.lap.mobile.core.isRealPostHogKey
@@ -49,6 +51,9 @@ class LapApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var analyticsReporter: AnalyticsReporter
 
+    @Inject
+    lateinit var telemetryOptOutPreference: TelemetryOptOutPreference
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
@@ -63,6 +68,16 @@ class LapApplication : Application(), Configuration.Provider {
     }
 
     private fun initSentryIfConfigured(): SentryReporter {
+        val base = baseSentryReporter()
+        // T224: wrap in OptOutAware so the Settings toggle suppresses
+        // every subsequent forward (breadcrumb / message / exception)
+        // without re-initializing the SDK underneath. Wrapping the
+        // NoOp branch is harmless + keeps the LapApplication wiring
+        // uniform across real-DSN and placeholder-DSN paths.
+        return OptOutAwareSentryReporter(base, telemetryOptOutPreference)
+    }
+
+    private fun baseSentryReporter(): SentryReporter {
         val dsn = BuildConfig.SENTRY_DSN
         if (!isRealSentryDsn(dsn)) {
             return NoOpSentryReporter

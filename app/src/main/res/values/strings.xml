@@ -179,4 +179,8 @@
     <string name="user_skill_level_beginner">Beginner — first year of track time</string>
     <string name="user_skill_level_intermediate">Intermediate — comfortable on track</string>
     <string name="user_skill_level_expert">Expert — instructor or racer</string>
+
+    <!-- Telemetry opt-out toggle (T224) — Settings → Privacy. Default ON (sharing). -->
+    <string name="telemetry_opt_out_toggle_title">Crash and usage reports</string>
+    <string name="telemetry_opt_out_toggle_description">Help improve LAP by sending anonymous crash and usage data. Your sessions and recordings stay on this device.</string>
 </resources>

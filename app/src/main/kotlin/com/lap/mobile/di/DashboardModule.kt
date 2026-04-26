@@ -4,6 +4,8 @@ import com.lap.mobile.coaching.CoachingAudioCuePreference
 import com.lap.mobile.coaching.SharedPreferencesCoachingAudioCuePreference
 import com.lap.mobile.coaching.SharedPreferencesUserSkillLevelPreference
 import com.lap.mobile.coaching.UserSkillLevelPreference
+import com.lap.mobile.core.SharedPreferencesTelemetryOptOutPreference
+import com.lap.mobile.core.TelemetryOptOutPreference
 import com.lap.mobile.dashboard.HighContrastThemePreference
 import com.lap.mobile.dashboard.SharedPreferencesHighContrastThemePreference
 import com.lap.mobile.dashboard.SharedPreferencesVoiceAnnouncementPreference
@@ -55,4 +57,10 @@ abstract class DashboardModule {
     abstract fun bindUserSkillLevelPreference(
         impl: SharedPreferencesUserSkillLevelPreference,
     ): UserSkillLevelPreference
+
+    @Binds
+    @Singleton
+    abstract fun bindTelemetryOptOutPreference(
+        impl: SharedPreferencesTelemetryOptOutPreference,
+    ): TelemetryOptOutPreference
 }

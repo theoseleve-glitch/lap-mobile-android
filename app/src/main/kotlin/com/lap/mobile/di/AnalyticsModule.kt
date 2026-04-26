@@ -3,7 +3,9 @@ package com.lap.mobile.di
 import com.lap.mobile.BuildConfig
 import com.lap.mobile.core.AnalyticsReporter
 import com.lap.mobile.core.NoOpAnalyticsReporter
+import com.lap.mobile.core.OptOutAwareAnalyticsReporter
 import com.lap.mobile.core.PostHogAnalyticsReporter
+import com.lap.mobile.core.TelemetryOptOutPreference
 import com.lap.mobile.core.isRealPostHogKey
 import dagger.Module
 import dagger.Provides
@@ -38,11 +40,16 @@ import javax.inject.Singleton
 object AnalyticsModule {
     @Provides
     @Singleton
-    fun provideAnalyticsReporter(): AnalyticsReporter {
-        return if (isRealPostHogKey(BuildConfig.POSTHOG_KEY)) {
+    fun provideAnalyticsReporter(optOutPreference: TelemetryOptOutPreference): AnalyticsReporter {
+        val base = if (isRealPostHogKey(BuildConfig.POSTHOG_KEY)) {
             PostHogAnalyticsReporter()
         } else {
             NoOpAnalyticsReporter
         }
+        // T224: wrap in OptOutAware so a Settings toggle flip
+        // suppresses every subsequent track() call without re-
+        // wiring the SDK underneath. Wrapping the NoOp branch is
+        // harmless + keeps the wiring uniform.
+        return OptOutAwareAnalyticsReporter(base, optOutPreference)
     }
 }
