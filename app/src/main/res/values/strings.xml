@@ -158,4 +158,11 @@
 
     <!-- TalkBack accessibility announcements (T209). -->
     <string name="accessibility_speed_format">Speed: %1$d kilometers per hour</string>
+
+    <!-- Coaching prompt card (T217). -->
+    <string name="coaching_prompt_dismiss_action">Dismiss</string>
+    <string name="coaching_prompt_severity_low">LOW</string>
+    <string name="coaching_prompt_severity_medium">MEDIUM</string>
+    <string name="coaching_prompt_severity_high">HIGH</string>
+    <string name="coaching_prompt_a11y_description_format">%1$s priority coaching insight: %2$s. %3$s</string>
 </resources>
